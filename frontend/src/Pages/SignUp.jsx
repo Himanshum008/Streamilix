@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 import { FaArrowLeft } from "react-icons/fa"
 import logo from "../assets/icon.png"
 import { FaUserCircle } from "react-icons/fa";
+import {useNavigate} from "react-router-dom"
 
 function SignUp() {
-const [step, setStep] = useState(3)
+const [step, setStep] = useState(1)
 const [userName, setUserName] = useState("")
 const [email,setEmail] = useState("")
 const [password,setPassword] = useState("")
@@ -12,17 +13,44 @@ const [confirmPassword, setConfirmPassword] = useState("")
 const [showPassword, setShowPassword] = useState(false)
 const [backendImage, setBackendImage] = useState(null)
 const [frontendImage, setFrontendImage] = useState(null)
+const navigate = useNavigate()
+
+const handleNext = ()=>{
+  if(step==1){
+    if(!userName || !email){
+      alert("Fill all the fields")
+      return
+    }
+  }
+  if(step==2){
+    if(!password || !confirmPassword){
+      alert("Fill all the fields")
+      return
+    }
+    if(password !== confirmPassword){
+      alert("password is not matched")
+      return
+    }
+  }
+  setStep(step+1)
+}
 
 const handleImage = (e) => {
-  const file = e.target.file[0]
-  setBackendImage(file)
-  setFrontendImage(URL.createObjectURL(file))
-}
+  const file = e.target.files[0]
+  if(file){setBackendImage(file)
+  setFrontendImage(URL.createObjectURL(file));
+}}
 
   return (
     <div className='flex items-center justify-center min-h-screen bg-[#192018]'>
         <div className='bg-[#2b2b2b] rounded-2xl p-20 w-full max-w-md shadow-lg'>
-            <button className='text-gray-300 mr-3 hover:text-white' >
+            <button className='text-gray-300 mr-3 hover:text-white' onClick={()=>{
+              if(step>1){
+                setStep(step-1)
+              }else{
+                navigate("/")
+              }
+            }}>
               <FaArrowLeft size={20}/>
             </button>
             <span className='text-white text-2xl font-medium'>Create Account</span>
@@ -37,14 +65,15 @@ const handleImage = (e) => {
               <div className='p-1'></div>
               <input type='text' placeholder='UserName' className='w-full bg-[#1c1c1c] bg border border-gray-500 rounded-md px-3 py-3
               text-white focus:outline-none focus:border-blue= focus:border-orange-500' 
-              onChange={(e)=>setUserName(e.target.value)} value={userName}p-10/>
+              onChange={(e)=>setUserName(e.target.value)} value={userName} />
               <div className='p-2'></div>
               <input type='text' placeholder='Email' className='w-full bg-[#1c1c1c] bg border border-gray-500 rounded-md px-3 py-3 
               text-white focus:outline-none focus:border-blue= focus:border-orange-500' 
               onChange={(e)=>setEmail(e.target.value)} value={email}/>
 
               <div className ='flex justify-end mt-10'>
-                <button className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full'>Next</button>
+                <button className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full'
+                onClick={handleNext}>Next</button>
               </div>
               </>
             )}
@@ -63,7 +92,7 @@ const handleImage = (e) => {
               </div>
               <input type={showPassword ? "text" : "password"} placeholder='Password' className='w-full bg-[#1c1c1c] bg border border-gray-500 rounded-md px-3 py-3
               text-white focus:outline-none focus:border-blue= focus:border-orange-500' 
-              onChange={(e)=>setPassword(e.target.value)} value={password}p-10/>
+              onChange={(e)=>setPassword(e.target.value)} value={password} />
               <div className='p-2'></div>
               <input type={showPassword ? "text" : "password"} placeholder='Confirm password' className='w-full bg-[#1c1c1c] bg border border-gray-500 rounded-md px-3 py-3 
               text-white focus:outline-none focus:border-blue= focus:border-orange-500' 
@@ -73,7 +102,8 @@ const handleImage = (e) => {
                 <label htmlFor="showpass" className='text-gray-300 cursor-pointer'></label>
               </div>
               <div className ='flex justify-end mt-10'>
-                <button className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full'>Next</button>
+                <button className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full'
+                onClick={handleNext}>Next</button>
               </div>
               </>
             )}
@@ -107,7 +137,8 @@ const handleImage = (e) => {
                 <button className='bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full'>Create Accont</button>
               </div>
               </>
-            )}
+            )}  
+
         </div>
     </div>
   )
