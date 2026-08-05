@@ -3,6 +3,9 @@ import { FaArrowLeft } from "react-icons/fa"
 import logo from "../assets/icon.png"
 import { FaUserCircle } from "react-icons/fa";
 import {useNavigate} from "react-router-dom"
+import axios from 'axios'
+import { serverUrl } from '../App';
+import {ClipLoader} from "react-spinner"
 
 function SignUp() {
 const [step, setStep] = useState(1)
@@ -13,6 +16,8 @@ const [confirmPassword, setConfirmPassword] = useState("")
 const [showPassword, setShowPassword] = useState(false)
 const [backendImage, setBackendImage] = useState(null)
 const [frontendImage, setFrontendImage] = useState(null)
+const [loading, setLoading] = useState(false)
+
 const navigate = useNavigate()
 
 const handleNext = ()=>{
@@ -40,6 +45,30 @@ const handleImage = (e) => {
   if(file){setBackendImage(file)
   setFrontendImage(URL.createObjectURL(file));
 }}
+
+const handleSignUp = async () => {
+  if(!backendImage){
+    alert("Please choose profile image")
+  }
+  setLoading(true)
+  const formData = new formData
+  formData.append({
+    "userName":userName,
+    'email':email,
+    'password':password,
+    'imageUrl':backendImage
+  })
+  try {
+    const result = await axios.post(serverUrl+"/api/auth/signup",+formData,{withCredentials})
+    console.log(result.data);
+    navigate("/")
+    setLoading(false)
+  } catch (error) {
+    console.log(error);
+    setLoading(false)
+  }
+}
+
 
   return (
     <div className='flex items-center justify-center min-h-screen bg-[#192018]'>
@@ -134,7 +163,8 @@ const handleImage = (e) => {
                 </div>
               </div>
               <div className ='flex justify-end mt-10'>
-                <button className='bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full'>Create Accont</button>
+                <button className='bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full'
+                onClick={handleSignUp} disabled={loading}>{loading ?<ClipLoader/>:"Create Account"}</button>
               </div>
               </>
             )}  

@@ -1,6 +1,6 @@
-import uploadOnCloudinary from "../config/cloudinary"
-import genToken from "../config/token"
-import User from "../models/user.model"
+import uploadOnCloudinary from "../config/cloudinary.js"
+import genToken from "../config/token.js"
+import User from "../models/user.model.js"
 import validator from 'validator'
 import bcrypt from 'bcrypt'
 

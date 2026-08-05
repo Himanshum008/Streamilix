@@ -4,6 +4,8 @@ import Home from './Pages/Home.jsx'
 import SignUp from './Pages/SignUp.jsx'
 import SignIn from './Pages/SignIn.jsx'
 
+export const serverUrl = "http://localhost:8000"
+
 function App() {
   
   return (
