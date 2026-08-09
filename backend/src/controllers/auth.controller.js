@@ -4,50 +4,62 @@ import User from "../models/user.model.js"
 import validator from 'validator'
 import bcrypt from 'bcrypt'
 
-export const signUp = async (req,res)=>{
+export const signUp = async (req, res) => {
     try {
-        const {username, email, password} = req.body
-        let imageUrl
-        if(req.file){
-            imageUrl = await uploadOnCloudinary(req.file.path)
-        }
+        const { userName, email, password } = req.body;
+        
+        const existUser = await User.findOne({ email });
 
-        const existUser = await User.findOne({email})
-        if(existUser){
-            return res.status(401).json({message: "User is already exist"})
+        if (existUser) {
+            return res.status(401).json({ message: "User is already exist" });
         }
 
         if (!validator.isEmail(email)) {
-            return res.status(402).json({message: "Invalid email"})
+            return res.status(402).json({ message: "Invalid email" });
         }
 
         if (password.length < 8) {
-            return res.status(403).json({message: "Enter strong password"})
+            return res.status(403).json({ message: "Enter strong password" });
         }
 
-        const hashPassword = await bcrypt.hash(password,10)
+        const hashPassword = await bcrypt.hash(password, 10);
+
+        let imageUrl = null;
+
+        if (req.file) {
+            imageUrl = await uploadOnCloudinary(req.file.path);
+            
+        }
 
         const user = await User.create({
-            username,
+            username:userName,
             email,
-            password:hashPassword,
+            password: hashPassword,
             imageUrl
-        })
+        });
 
-        let token = await genToken(user._id)
+        let token = await genToken(user._id);
 
-        res.cookie("token",token,{
-            httpOnly:true,
-            secure:false,
-            samesite:"Strict",
-            maxAge: 7*24*60*60*1000
-        })
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
 
-        return res.status(201).json(user)
+        return res.status(201).json({
+            user,
+            message: "Signup successful"
+        });
+
     } catch (error) {
-        return res.status(500).json({message: `Signup error ${error}`})
+        console.log(error);
+        return res.status(500).json({
+            message: "signup error",
+            error: error.message
+        });
     }
-}
+};
 
 export const signIn = async (req,res) => {
     try {

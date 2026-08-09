@@ -48,27 +48,63 @@ function SignUp() {
     setfrontendImage(URL.createObjectURL(file))
   }
 
-  const handleSignUp = async () => {
-    if (!backendImage) {
-      alert("Please choose profile image")
-    }
-    setLoading(true)
-    const formData = new FormData
-    formData.append("userName", userName)
-    formData.append("email", email)
-    formData.append("password", password)
-    formData.append("imageUrl", backendImage)
+  // const handleSignUp = async () => {
+  //   if (!backendImage) {
+  //     alert("Please choose profile image")
+  //   }
+  //   setLoading(true)
+  //   const formData = new FormData
+  //   formData.append("userName", userName)
+  //   formData.append("email", email)
+  //   formData.append("password", password)
+  //   formData.append("imageUrl", backendImage)
 
-    try {
-      const result = await axios.post(serverUrl + "/api/auth/signup" , formData , {withCredentials:true})
-      console.log(result.data);
-      navigate("/")
-      setLoading(false)
-    } catch (error) {
-      console.log(error);
-      setLoading(false)
-    }
+  //   try {
+  //     const result = await axios.post(serverUrl + "/api/auth/signup" , formData , {withCredentials:true})
+  //     console.log(result.data);
+  //     navigate("/")
+  //     setLoading(false)
+  //   } catch (error) {
+  //     console.log(error);
+  //     setLoading(false)
+  //   }
+  // }
+
+  const handleSignUp = async () => {
+  // 1. Validation check aur return lagayein taaki empty image aage na bheje
+  if (!backendImage) {
+    alert("Please choose profile image")
+    return; // Yeh lagana zaroori hai!
   }
+  
+  setLoading(true)
+  const formData = new FormData() // Bracket () correct karein
+  formData.append("userName", userName)
+  formData.append("email", email)
+  formData.append("password", password)
+  formData.append("imageUrl", backendImage) // Backend par multer field name yahi hona chahiye
+
+  try {
+    // 2. Headers mein multipart/form-data add karein
+    const result = await axios.post(
+      serverUrl + "/api/auth/signup", 
+      formData, 
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data" // Yeh aapka 403 error solve karega
+        }
+      }
+    )
+    
+    console.log(result.data);
+    navigate("/")
+  } catch (error) {
+    console.error("Signup Error Details:", error.response ? error.response.data : error.message);
+  } finally {
+    setLoading(false) // setLoading ko finally mein dalna safe hota hai
+  }
+}
 
   return (
     <div className='flex items-center justify-center min-h-screen bg-[#181818]'>
