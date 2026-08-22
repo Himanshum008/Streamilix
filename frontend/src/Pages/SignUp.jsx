@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { serverUrl } from '../App.jsx'
 import {ClipLoader} from "react-spinners"
+import { showCustomAlert } from '../components/CustomAlert.jsx'
 
 function SignUp() {
   const [step, setStep] = useState(1)
@@ -20,22 +21,20 @@ function SignUp() {
   const navigate = useNavigate()
 
 
-  
-
   const handleNext = () => {
-    if(step == 1){
+    if(step === 1){
       if(!userName || !email){
-        alert("Fill all the fields")
+        showCustomAlert("Fill all the fields")
         return
       }
     }
     if(step == 2){
       if (!password || !ConfirmPassword) {
-        alert("Fill all the fields")
+        showCustomAlert("Fill all the fields")
         return
       }
       if (password !== ConfirmPassword) {
-        alert("Password is not match")
+        showCustomAlert("Password is not match")
         return
       }
     }
@@ -48,63 +47,29 @@ function SignUp() {
     setfrontendImage(URL.createObjectURL(file))
   }
 
-  // const handleSignUp = async () => {
-  //   if (!backendImage) {
-  //     alert("Please choose profile image")
-  //   }
-  //   setLoading(true)
-  //   const formData = new FormData
-  //   formData.append("userName", userName)
-  //   formData.append("email", email)
-  //   formData.append("password", password)
-  //   formData.append("imageUrl", backendImage)
-
-  //   try {
-  //     const result = await axios.post(serverUrl + "/api/auth/signup" , formData , {withCredentials:true})
-  //     console.log(result.data);
-  //     navigate("/")
-  //     setLoading(false)
-  //   } catch (error) {
-  //     console.log(error);
-  //     setLoading(false)
-  //   }
-  // }
-
   const handleSignUp = async () => {
-  // 1. Validation check aur return lagayein taaki empty image aage na bheje
-  if (!backendImage) {
-    alert("Please choose profile image")
-    return; // Yeh lagana zaroori hai!
-  }
-  
-  setLoading(true)
-  const formData = new FormData() // Bracket () correct karein
-  formData.append("userName", userName)
-  formData.append("email", email)
-  formData.append("password", password)
-  formData.append("imageUrl", backendImage) // Backend par multer field name yahi hona chahiye
+    if (!backendImage) {
+      showCustomAlert("Please choose profile image")
+    }
+    setLoading(true)
+    const formData = new FormData
+    formData.append("userName", userName)
+    formData.append("email", email)
+    formData.append("password", password)
+    formData.append("imageUrl", backendImage)
 
-  try {
-    // 2. Headers mein multipart/form-data add karein
-    const result = await axios.post(
-      serverUrl + "/api/auth/signup", 
-      formData, 
-      {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data" // Yeh aapka 403 error solve karega
-        }
-      }
-    )
-    
-    console.log(result.data);
-    navigate("/")
-  } catch (error) {
-    console.error("Signup Error Details:", error.response ? error.response.data : error.message);
-  } finally {
-    setLoading(false) // setLoading ko finally mein dalna safe hota hai
+    try {
+      const result = await axios.post(serverUrl + "/api/auth/signup" , formData , {withCredentials:true})
+      console.log(result.data);
+      navigate("/")
+      setLoading(false)
+      showCustomAlert("Account created")
+    } catch (error) {
+      console.log(error);
+      setLoading(false)
+      showCustomAlert("Sign up error")
+    }
   }
-}
 
   return (
     <div className='flex items-center justify-center min-h-screen bg-[#181818]'>
@@ -156,10 +121,12 @@ function SignUp() {
           className='w-full bg-transparent border border-gray-500
           rounded-md px-3 py-3 text-white focus:outline-none focus:border-orange-500 mb-4' 
           onChange={(e)=>setPassword(e.target.value)}  value={password}/>
-          <input type="text" placeholder='Confirm Password' className='w-full bg-transparent border border-gray-500
+
+          <input type={showPassword ? "text" : "password"} placeholder='Confirm Password' className='w-full bg-transparent border border-gray-500
           rounded-md px-3 py-3 text-white focus:outline-none focus:border-orange-500 mb-4' 
           onChange={(e)=>setConfirmPassword(e.target.value)}  value={ConfirmPassword}/>
           <div className='flex items-center gap-2 mt-3'>
+
             <input type="checkbox" id='showpass' checked={showPassword} 
             onChange={()=>setShowPassword(!showPassword)}/>
             <label htmlFor="showpass" className='text-gray-300 cursor-pointer '>Show Password</label>
