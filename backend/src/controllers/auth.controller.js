@@ -61,38 +61,62 @@ export const signUp = async (req, res) => {
     }
 };
 
-export const signIn = async (req,res) => {
+export const signIn = async (req, res) => {
     try {
-        const {email,password} = req.body
-        const user = await User.findOne({email})
+        const { email, password } = req.body
+
+        const user = await User.findOne({ email })
 
         if (!user) {
-            return res.status(406).json({message: "User is not found"})
+            return res.status(406).json({
+                message: "User is not found"
+            })
         }
 
-        const matchPassword = await bcrypt(password,user.password)
+        const matchPassword = await bcrypt.compare(
+            password,
+            user.password
+        )
 
         if (!matchPassword) {
-            return res.status(407).json({message: "Incorrect Password"})
+            return res.status(407).json({
+                message: "Incorrect Password"
+            })
         }
-        let token = await genToken(user._id)
 
-        res.cookie("token",token,{
-            httpOnly:true,
-            secure:false,
-            samesite:"Strict",
-            maxAge: 7*24*60*60*1000
+        const token = await genToken(user._id)
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
         })
-        res.status(200).json(user)
+
+        return res.status(200).json(
+            await User.findById(user._id).select("-password")
+        )
+
     } catch (error) {
-        return res.status(500).json({message: `Signup error ${error}`})
+        console.log(error)
+
+        return res.status(500).json({
+            message: `Signin error: ${error.message}`
+        })
     }
 }
 
 
 export const signOut = async (req, res) => {
     try {
-        await res.clearCookie("token")
+        await res.clearCookie("token", {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict"
+        })
+        return res.status(200).json({
+            message: "Signout successful"
+        })
     } catch (error) {
         return res.status(500).json({message: `Signout error ${error}`})
     }

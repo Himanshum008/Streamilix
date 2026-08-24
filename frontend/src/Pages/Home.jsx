@@ -12,11 +12,13 @@ import {
   FaThumbsUp,
   FaTimes,
  } from 'react-icons/fa'
- import { IoIosAddCircle } from "react-icons/io"
- import { GoVideo } from "react-icons/go"
- import { SiYoutubeshorts } from "react-icons/si"
- import { MdOutlineSubscriptions } from "react-icons/md"
-import { Outlet, useNavigate } from 'react-router-dom'
+import { IoIosAddCircle } from "react-icons/io"
+import { GoVideo } from "react-icons/go"
+import { SiYoutubeshorts } from "react-icons/si"
+import { MdOutlineSubscriptions } from "react-icons/md"
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useSelector } from 'react-redux'
+import Profile from '../components/Profile.jsx'
 
 
 
@@ -25,6 +27,9 @@ function Home() {
   const [selectedItem, setSelectedItem] = useState("Home")
   const [active, setActive] = useState("Home")
   const navigate = useNavigate()
+  const {userData} = useSelector((state)=>state.user)
+  const [popUp, setPopUp] = useState(false)
+  const location = useLocation()
 
   const categories = [
     "Music", "Gaming", "Movies", "TV Shows", "News", "Trending", "Entertainment", "Education", "Science & Tech", "Travel",
@@ -65,11 +70,14 @@ function Home() {
 
           {/* right */}
           <div className='flex items-center gap-3'>
-            <button className='hidden md:flex items-center gap-1 cursor-pointer'>
+            {userData?.channel && <button className='hidden md:flex items-center gap-1 cursor-pointer'>
               <span className='text-lg'>+</span>
               <span>Create</span>
-            </button>
-            <FaUserCircle className='text-3xl hidden md:flex text-gray-400'/>
+            </button>}
+            {!userData?.imageUrl ? <FaUserCircle className='text-3xl hidden md:flex text-gray-400'
+            onClick={()=>setPopUp(prev=>!prev)}/>
+            :<img src={userData?.imageUrl} className='w-9 h-9 rounded-full object-cover border
+            border-gray-700 hidden md:flex' onClick={()=>setPopUp(prev=>!prev)}/>}
             <FaSearch className='text-lg md:hidden flex'/>
           </div>
         </div>
@@ -123,7 +131,7 @@ function Home() {
             ))}
           </div>
           </>)}
-
+          {popUp && <Profile/>}
 
           {/* outlet */}
           <div className='mt-2'>
@@ -143,7 +151,8 @@ function Home() {
         on onClick={()=>setActive("+")}/>
         <MobileSizeNav icon={<MdOutlineSubscriptions/>} text={"Subscriptions"} 
         active={active === "Subscriptions"} on onClick={()=>setActive("Subscriptions")}/>
-        <MobileSizeNav icon={<FaUserCircle/>} text={"You"} 
+        <MobileSizeNav icon={!userData?.imageUrl?<FaUserCircle/>:<img src={userData?.imageUrl} 
+        className='w-8 h-8 rounded-full object-cover border border-gray-700'/>} text={"You"} 
         active={active === "You"} on onClick={()=>setActive("You")}/>
       </nav>
 

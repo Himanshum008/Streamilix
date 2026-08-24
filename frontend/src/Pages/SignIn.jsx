@@ -8,6 +8,8 @@ import SignUp from './SignUp.jsx'
 import { serverUrl } from '../App.jsx'
 import { ClipLoader } from 'react-spinners'
 import axios from 'axios'
+import { useDispatch } from 'react-redux'
+import { setUserData } from '../redux/userSlice.js'
 
 
 function SignIn() {
@@ -18,6 +20,7 @@ function SignIn() {
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
+  const dispatch = useDispatch()
 
   const handleNext = () => {
       if(step === 1){
@@ -40,6 +43,7 @@ function SignIn() {
       try {
         const result = await axios.post(serverUrl + "/api/auth/signin" , {email, password}, {withCredentials:true})
           console.log(result.data);
+          dispatch(setUserData(result.data))
                 navigate("/")
                 setLoading(false)
                 showCustomAlert("Sign in successfully")

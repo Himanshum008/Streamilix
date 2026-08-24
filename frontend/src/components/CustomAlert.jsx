@@ -20,8 +20,8 @@ function CustomAlert() {
   },[])
 
   return (
-  visible && <div className="fixed inset-0 bg-black/50 flex justify-center items-start z-50">
-    <div className="bg-[#202124] text-white rounded-lg shadow-lg p-6 w-80 mt-6">
+  visible && <div className="fixed inset-0 bg-black/50 flex justify-center items-start z-50 mt-200px">
+    <div className="bg-[#202124] text-white rounded-lg shadow-lg p-8 w-80 mt-20">
       <p className="text-sm">{message}</p>
       <div className="flex justify-end mt-6">
         <button className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full'

@@ -5,10 +5,12 @@ import SignIn from './Pages/SignIn.jsx'
 import SignUp from './Pages/SignUp.jsx'
 import CustomAlert from './components/CustomAlert.jsx'
 import Shorts from './Pages/Shorts/Shorts.jsx'
+import GetCurrentUser from './customHooks/GetCurrentUser.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
 function App() {
+  GetCurrentUser()
   
   return (
     <>

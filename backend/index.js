@@ -4,6 +4,7 @@ import connectDB from './src/config/db.js'
 import authRouter from './src/routes/auth.routes.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import userRouter from './src/routes/user.routes.js'
 
 dotenv.config({
     path: "./.env"
@@ -22,8 +23,9 @@ app.use(cors({
 }))
 
 app.use("/api/auth",authRouter)
+app.use("/api/user", userRouter)
 
 app.listen(port, ()=>{
-    console.log("Server started");  
+    console.log(`Server started ${port}`);  
     connectDB()
 })
