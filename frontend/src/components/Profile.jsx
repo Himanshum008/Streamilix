@@ -7,9 +7,11 @@ import {TiUserAddOutline} from "react-icons/ti"
 import { SiYoutubestudio } from 'react-icons/si'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import { serverUrl } from '../App'
-import { showCustomAlert } from './CustomAlert'
-import { setUserData } from '../redux/userSlice'
+import { serverUrl } from '../App.jsx'
+import { showCustomAlert } from './CustomAlert.jsx'
+import { setUserData } from '../redux/userSlice.js'
+import { signInWithPopup } from 'firebase/auth'
+import { auth, provider } from '../../utils/firebase'
 
 function Profile() {
     const {userData} = useSelector(state=>state.user)
@@ -28,6 +30,31 @@ function Profile() {
         }
     }
 
+    const handleGoogleAuth = async () => {
+        try {
+            const response = await signInWithPopup(auth, provider)
+            console.log(response);
+            let user = response.user
+            let userName = user.displayName
+            let email = user.email
+            let imageUrl = user.photoURL
+
+            const formData = new FormData()
+            formData.append("userName", userName)
+            formData.append("email", email)
+            formData.append("photoUrl", imageUrl)
+
+            const result = await axios.post(serverUrl + "/api/auth/googleauth" , formData , {withCredentials:true})
+            dispatch(setUserData(result.data))
+            console.log(result.data);
+            showCustomAlert("Google Authentication Successfully")
+            
+        } catch (error) {
+            console.log(error);
+            showCustomAlert("Google Authentication error")
+        }
+    }
+
   return (
 
     <div className='absolute right-5 top-10 mt-2 w-90 bg-[#212121] text-white rounded-xl shadow-lg z-50 hidden md:block'>
@@ -43,7 +70,7 @@ function Profile() {
         </div>}
 
         <div className='flex flex-col py-2'>
-            <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700'>
+            <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700' onClick={handleGoogleAuth}>
                 <FcGoogle className='text-xl'/>Sign in with google account</button>
             <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700' onClick={()=>navigate("/signup")}>
                 <TiUserAddOutline className='text-xl' />Create new Account</button>

@@ -63,7 +63,7 @@ function SignUp() {
     try {
       const result = await axios.post(serverUrl + "/api/auth/signup" , formData , {withCredentials:true})
       console.log(result.data);
-      dispatch(setUserName(result.data))
+      //dispatch(setUserName(result.data))
       navigate("/")
       setLoading(false)
       showCustomAlert("Account created")

@@ -49,7 +49,7 @@ export const signUp = async (req, res) => {
 
         return res.status(201).json({
             user,
-            message: "Signup successful"
+            message: "Signup successfully"
         });
 
     } catch (error) {
@@ -119,5 +119,71 @@ export const signOut = async (req, res) => {
         })
     } catch (error) {
         return res.status(500).json({message: `Signout error ${error}`})
+    }
+}
+
+export const googleAuth = async (req, res) => {
+    try {
+        const {
+            userName, 
+            email, 
+            imageUrl} = req.body
+
+        let googleImage = imageUrl
+        if (imageUrl) {
+            try {
+                googleImage = await uploadOnCloudinary(imageUrl)
+            } catch (error) {
+                console.log("Cloudinary upload failed");
+                
+            }
+        }
+
+        if (!email) {
+            return res.status(400).json({
+                message: "Google email is required"
+            })
+        }
+        const user = await User.findOne({email})
+
+        if (!user) {
+            let username = userName?.trim()
+
+            if (!username) {
+                username = email.split("@")[0]
+            }
+
+            const existingUsername = await User.findOne({ username })
+
+            if (existingUsername) {
+                username = `${username}_${Date.now()}`
+            }
+
+            await User.create({
+                userName,
+                email,
+                imageUrl:googleImage
+            })
+        }else{
+            if (!user.imageUrl && googleImage) {
+                user.imageUrl = googleImage
+                await user.save()
+            }
+        }
+
+        let token = await genToken(user._id);
+
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        return res.status(201).json(user);
+
+    } catch (error) {
+        return res.status(500).json({message:`GoogleAuth error ${error}`})
+        
     }
 }
