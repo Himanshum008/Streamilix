@@ -115,7 +115,7 @@ function SignIn() {
             <label htmlFor="showpass" className='text-gray-300 cursor-pointer '>Show Password</label>
           </div>
           <div className='flex justify-between items-center mt-10'>
-            <button className='text-orange-400 text-sm hover:underline'>
+            <button className='text-orange-400 text-sm hover:underline' onClick={()=>navigate("/forgetpassword")}>
               Forget password
             </button>
             <button className='bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full'

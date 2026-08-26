@@ -144,16 +144,16 @@ function Home() {
       <nav className='md:hidden fixed bottom-0 left-0 right-0 bg-[#0f0f0f]
       border-t border-gray-800 flex justify-around py-2 z-10'>
         <MobileSizeNav icon={<FaHome/>} text={"Home"} active={active === "Home"} 
-        on onClick={()=>setActive("Home")}/>
+        on onClick={()=>{setActive("Home");navigate("/home")}}/>
         <MobileSizeNav icon={<SiYoutubeshorts/>} text={"Shorts"} active={active === "Shorts"} 
-        on onClick={()=>setActive("Shorts")}/>
+        on onClick={()=>{setActive("Shorts");navigate("/shorts")}}/>
         <MobileSizeNav icon={<IoIosAddCircle size={40}/>} active={active === "+"} 
         on onClick={()=>setActive("+")}/>
         <MobileSizeNav icon={<MdOutlineSubscriptions/>} text={"Subscriptions"} 
         active={active === "Subscriptions"} on onClick={()=>setActive("Subscriptions")}/>
         <MobileSizeNav icon={!userData?.imageUrl?<FaUserCircle/>:<img src={userData?.imageUrl} 
         className='w-8 h-8 rounded-full object-cover border border-gray-700'/>} text={"You"} 
-        active={active === "You"} on onClick={()=>setActive("You")}/>
+        active={active === "You"} on onClick={()=>{setActive("You");navigate("/mobileprofile")}}/>
       </nav>
 
     </div>
