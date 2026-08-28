@@ -25,10 +25,10 @@ export const signUp = async (req, res) => {
 
         const hashPassword = await bcrypt.hash(password, 10);
 
-        let imageUrl = null;
+        let photoUrl = null;
 
         if (req.file) {
-            imageUrl = await uploadOnCloudinary(req.file.path);
+            photoUrl = await uploadOnCloudinary(req.file.path);
             
         }
 
@@ -36,7 +36,7 @@ export const signUp = async (req, res) => {
             username:userName,
             email,
             password: hashPassword,
-            imageUrl
+            photoUrl
         });
 
         let token = await genToken(user._id);
@@ -128,12 +128,12 @@ export const googleAuth = async (req, res) => {
         const {
             userName, 
             email, 
-            imageUrl} = req.body
+            photoUrl} = req.body
 
-        let googleImage = imageUrl
-        if (imageUrl) {
+        let googleImage = photoUrl
+        if (photoUrl) {
             try {
-                googleImage = await uploadOnCloudinary(imageUrl)
+                googleImage = await uploadOnCloudinary(photoUrl)
             } catch (error) {
                 console.log("Cloudinary upload failed");
                 
@@ -161,13 +161,13 @@ export const googleAuth = async (req, res) => {
             }
 
             await User.create({
-                userName,
+                username,
                 email,
-                imageUrl:googleImage
+                photoUrl: googleImage
             })
         }else{
-            if (!user.imageUrl && googleImage) {
-                user.imageUrl = googleImage
+            if (!user.photoUrl && googleImage) {
+                user.photoUrl = googleImage
                 await user.save()
             }
         }

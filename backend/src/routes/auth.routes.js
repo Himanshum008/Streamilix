@@ -11,10 +11,10 @@ import { signUp,
 
 const authRouter = express.Router()
 
-authRouter.post("/signup", upload.single("imageUrl"),signUp);
+authRouter.post("/signup", upload.single("photoUrl"),signUp);
 authRouter.post("/signin", signIn);
 authRouter.get("/signout",signOut);
-authRouter.post("/googleauth",upload.single("imageUrl"), googleAuth);
+authRouter.post("/googleauth",upload.single("photoUrl"), googleAuth);
 authRouter.post("/sendotp", sentOtp)
 authRouter.post("/verifyotp", verifyOtp)
 authRouter.post("/resetpassword", resetPassword)

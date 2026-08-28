@@ -58,7 +58,7 @@ function SignUp() {
     formData.append("userName", userName)
     formData.append("email", email)
     formData.append("password", password)
-    formData.append("imageUrl", backendImage)
+    formData.append("photoUrl", backendImage)
 
     try {
       const result = await axios.post(serverUrl + "/api/auth/signup" , formData , {withCredentials:true})

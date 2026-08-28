@@ -74,9 +74,9 @@ function Home() {
               <span className='text-lg'>+</span>
               <span>Create</span>
             </button>}
-            {!userData?.imageUrl ? <FaUserCircle className='text-3xl hidden md:flex text-gray-400'
+            {!userData?.photoUrl ? <FaUserCircle className='text-3xl hidden md:flex text-gray-400'
             onClick={()=>setPopUp(prev=>!prev)}/>
-            :<img src={userData?.imageUrl} className='w-9 h-9 rounded-full object-cover border
+            :<img src={userData?.photoUrl} className='w-9 h-9 rounded-full object-cover border
             border-gray-700 hidden md:flex' onClick={()=>setPopUp(prev=>!prev)}/>}
             <FaSearch className='text-lg md:hidden flex'/>
           </div>
@@ -151,7 +151,7 @@ function Home() {
         on onClick={()=>setActive("+")}/>
         <MobileSizeNav icon={<MdOutlineSubscriptions/>} text={"Subscriptions"} 
         active={active === "Subscriptions"} on onClick={()=>setActive("Subscriptions")}/>
-        <MobileSizeNav icon={!userData?.imageUrl?<FaUserCircle/>:<img src={userData?.imageUrl} 
+        <MobileSizeNav icon={!userData?.photoUrl?<FaUserCircle/>:<img src={userData?.photoUrl} 
         className='w-8 h-8 rounded-full object-cover border border-gray-700'/>} text={"You"} 
         active={active === "You"} on onClick={()=>{setActive("You");navigate("/mobileprofile")}}/>
       </nav>

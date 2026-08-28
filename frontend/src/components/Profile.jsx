@@ -37,12 +37,12 @@ function Profile() {
             let user = response.user
             let userName = user.displayName
             let email = user.email
-            let imageUrl = user.photoURL
+            let photoUrl = user.photoURL
 
             const formData = new FormData()
             formData.append("userName", userName)
             formData.append("email", email)
-            formData.append("photoUrl", imageUrl)
+            formData.append("photoUrl", photoUrl)
 
             const result = await axios.post(serverUrl + "/api/auth/googleauth" , formData , {withCredentials:true})
             dispatch(setUserData(result.data))
@@ -59,12 +59,13 @@ function Profile() {
 
     <div className='absolute right-5 top-10 mt-2 w-90 bg-[#212121] text-white rounded-xl shadow-lg z-50 hidden md:block'>
         {userData && <div className='flex items-center gap-3 p-4 border-b border-gray-700'>
-            <img src={userData?.imageUrl} alt="image" className='w-12 h-12 flex items-center justify-center rounded-full
+            <img src={userData?.photoUrl} alt="image" className='w-12 h-12 flex items-center justify-center rounded-full
             object-cover border border-gray-700'/>
             <div>
                 <h4 className='font-semibold'>{userData?.username}</h4>
                 <p className='text-sm text-gray-400 overflow-auto'>{userData.email}</p>
-                <p className='text-sm text-blue-400 cursor-pointer hover:underline'>
+                <p className='text-sm text-blue-400 cursor-pointer hover:underline' 
+                onClick={()=>{userData?.channel ? navigate("/viewchannel"): navigate("/createchannel")}}>
                     {userData?.channel ? "view channel" : "create channel"}</p>
             </div>
         </div>}

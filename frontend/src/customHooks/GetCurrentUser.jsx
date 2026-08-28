@@ -11,7 +11,7 @@ const GetCurrentUser = () => {
     useEffect(()=>{
         const fetchUser = async () => {
             try {
-                axios.get(serverUrl + "/api/user/getuser", {
+                const result = await axios.get(serverUrl + "/api/user/getuser", {
                     withCredentials: true
                 })
                 dispatch(setUserData(result.data))

@@ -43,12 +43,12 @@ function MobileProfile() {
             let user = response.user
             let userName = user.displayName
             let email = user.email
-            let imageUrl = user.photoURL
+            let photoUrl = user.photoURL
 
             const formData = new FormData()
             formData.append("userName", userName)
             formData.append("email", email)
-            formData.append("photoUrl", imageUrl)
+            formData.append("photoUrl", photoUrl)
 
             const result = await axios.post(serverUrl + "/api/auth/googleauth" , formData , {withCredentials:true})
             dispatch(setUserData(result.data))
@@ -65,11 +65,12 @@ function MobileProfile() {
     <div className='md:hidden bg-[#0f0f0f] h-full w-full flex flex-col pt-25 p-2.5'>
         {/* top profile section */}
         {userData && <div className='p-4 flex items-center gap-4 border-b border-gray-800'>
-            {userData?.imageUrl && <img src={userData?.imageUrl} alt="" className='w-16 h-16 rounded-full object-cover'/>}
+            {userData?.photoUrl && <img src={userData?.photoUrl} alt="" className='w-16 h-16 rounded-full object-cover'/>}
             <div className='flex flex-col'>
                 <span className='font-semibold text-lg'>{userData?.userName}</span>
                 <span className='text-gray-400 text-sm'>{userData?.email}</span>
-                <p className='text-sm text-blue-400 cursor-pointer hover:underline'>
+                <p className='text-sm text-blue-400 cursor-pointer hover:underline' 
+                onClick={()=>{userData?.channel ? navigate("/viewchannel"): navigate("/createchannel")}}>
                     {userData?.channel ? "view channel" : "create channel"}</p>
             </div>
         </div>}
