@@ -35,7 +35,8 @@ function ViewChannel() {
           <img src={video} alt="" className='w-20 '/>
           <p className='mt-4 font-medium'>Create Content on any devices</p>
           <p className='text-gray-400 text-sm text-center'>Upload and record at home or on the go. Everything you make appear here.</p>
-          <button className='bg-white text-black mt-4 px-5 py-1 rounded-full font-medium'>+ Create</button>
+          <button className='bg-white text-black mt-4 px-5 py-1 rounded-full font-medium'
+          onClick={()=>navigate("/create")}>+ Create</button>
         </div>
       </div>
     </div>

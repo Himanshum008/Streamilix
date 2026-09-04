@@ -56,7 +56,7 @@ function UpdateChannel() {
         } catch (error) {
             setLoading(false)
             console.log(error);
-            showCustomAlert("Channel create error")
+            showCustomAlert("Channel update error")
             
         }
     }

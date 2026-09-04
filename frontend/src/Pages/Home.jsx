@@ -70,7 +70,8 @@ function Home() {
 
           {/* right */}
           <div className='flex items-center gap-3'>
-            {userData?.channel && <button className='hidden md:flex items-center gap-1 cursor-pointer'>
+            {userData?.channel && <button className='hidden md:flex items-center gap-1 cursor-pointer'
+            onClick={()=>navigate("/create")}>
               <span className='text-lg'>+</span>
               <span>Create</span>
             </button>}
@@ -148,7 +149,7 @@ function Home() {
         <MobileSizeNav icon={<SiYoutubeshorts/>} text={"Shorts"} active={active === "Shorts"} 
         on onClick={()=>{setActive("Shorts");navigate("/shorts")}}/>
         <MobileSizeNav icon={<IoIosAddCircle size={40}/>} active={active === "+"} 
-        on onClick={()=>setActive("+")}/>
+        on onClick={()=>{setActive("+");navigate("/create")}}/>
         <MobileSizeNav icon={<MdOutlineSubscriptions/>} text={"Subscriptions"} 
         active={active === "Subscriptions"} on onClick={()=>setActive("Subscriptions")}/>
         <MobileSizeNav icon={!userData?.photoUrl?<FaUserCircle/>:<img src={userData?.photoUrl} 
