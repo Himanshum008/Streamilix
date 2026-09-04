@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { FaVideo, FaPlay, FaPen, FaList } from 'react-icons/fa'
 import video from "../assets/video.png"
+import { useNavigate } from 'react-router-dom'
 
 function CreatePage() {
 
     const [selected, setSelected] = useState(false)
+    const navigate = useNavigate()
     const options = [
         {
             id:"video",
@@ -27,6 +29,19 @@ function CreatePage() {
             title:"New Playlist"
         }
     ]
+
+    const handleRoute = () => {
+        const routes = {
+            video: "/createvideo",
+            short:"/createshort",
+            post:"/createpost",
+            playlist:"/createplaylist"
+        }
+
+        if (selected && routes[selected]) {
+            navigate(routes[selected])
+        }
+    }
 
   return (
     <div className='bg-[#0f0f0f] min-h-screen text-white px-6 py-8 mt-10 flex flex-col'>
@@ -57,9 +72,9 @@ function CreatePage() {
                     <p className='text-gray-400 text-sm text-center'>
                         Click below to start your {options.find((opt) => opt.id === selected)?.title.toLowerCase()}</p>
                         <button className='bg-white text-black mt-4 px-5 py-1 rounded-full font-medium
-                        cursor-pointer'>+ Create</button>
+                        cursor-pointer' onClick={handleRoute}>+ Create</button>
                 </div>
-            )
+            ) 
             }
         </div>
     </div>

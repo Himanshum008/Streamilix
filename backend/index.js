@@ -5,6 +5,7 @@ import authRouter from './src/routes/auth.routes.js'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import userRouter from './src/routes/user.routes.js'
+import contentRouter from './src/routes/content.route.js'
 
 dotenv.config({
     path: "./.env"
@@ -24,6 +25,7 @@ app.use(cors({
 
 app.use("/api/auth",authRouter)
 app.use("/api/user", userRouter)
+app.use("/api/content", contentRouter)
 
 app.listen(port, ()=>{
     console.log(`Server started ${port}`);  
