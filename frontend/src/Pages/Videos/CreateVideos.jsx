@@ -4,11 +4,15 @@ import { useState } from 'react'
 import { serverUrl } from '../../App'
 import { showCustomAlert } from '../../components/CustomAlert'
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { ClipLoader } from 'react-spinners'
+import { setAllVideosData } from '../../redux/contentSlice'
+import { setChannelData } from '../../redux/userSlice'
 
 function CreateVideos() {
   const {channelData} = useSelector(state=>state.user)
+  const {allVideosData} = useSelector(state=>state.content)
+
   const [videoUrl, setVideoUrl] = useState(null)
   const [thumbnail, setThumbnail] = useState(null)
   const [title, setTitle] = useState("")
@@ -16,6 +20,7 @@ function CreateVideos() {
   const [tags, setTags] = useState("")
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const handleVideo = (e) =>{
     setVideoUrl(e.target.files[0])
@@ -40,6 +45,11 @@ function CreateVideos() {
       showCustomAlert("Upload Video Successfully")
       setLoading(false)
       navigate("/")
+      dispatch(setAllVideosData([...allVideosData , result.data]))
+      const updatechannel = {
+        ...channelData , videos : [...{...(channelData.Videos) || []},result.data]
+      }
+      dispatch(setChannelData(updatechannel))
       
     } catch (error) {
       console.log(error);
@@ -50,7 +60,7 @@ function CreateVideos() {
   }
 
   return (
-    <div className='w-full min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center flex-col pt-5'>
+    <div className='w-full min-h-[80vh] bg-[#0f0f0f] text-white flex items-center justify-center flex-col pt-5'>
       <div className='flex flex-1 justify-center items-center px-4 py-6'>
 
         <div className='bg-[#212121] p-6 rounded-xl w-full max-w-2xl shadow-lg space-y-6'>

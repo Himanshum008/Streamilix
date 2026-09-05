@@ -47,3 +47,15 @@ export const createVideo = async (req,res) => {
         return res.status(500).json({message: `Failed to create video ${error}`})
     }
 }
+
+export const getAllVideos = async (req, res) => {
+    try {
+        const videos = await Video.find().sort({createdAt : -1}).populate("channel")
+        if (!videos) {
+            return res.status(400).json({message: "Videos are not found"})
+        }
+        return res.status(200).json(videos)
+    } catch (error) {
+        return res.status(500).json({message: `Failed to get videos ${error}`})
+    }
+}

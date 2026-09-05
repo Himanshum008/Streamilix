@@ -50,7 +50,7 @@ const shortSchema = new mongoose.Schema(
         },
         tags:[{type:String}],
         views:{
-            typr:Number,
+            type:Number,
             default:0
         },
         likes:[{

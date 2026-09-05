@@ -19,6 +19,8 @@ import { MdOutlineSubscriptions } from "react-icons/md"
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import Profile from '../components/Profile.jsx'
+import AllVideosPage from '../components/AllVideosPage.jsx'
+import AllShortsPage from '../components/AllShortsPage.jsx'
 
 
 
@@ -130,6 +132,10 @@ function Home() {
                 {cat}
               </button>
             ))}
+          </div>
+          <div className='mt-3'>
+            <AllVideosPage/>
+            <AllShortsPage/>
           </div>
           </>)}
           {popUp && <Profile/>}

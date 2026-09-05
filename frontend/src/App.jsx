@@ -18,6 +18,7 @@ import CreateVideos from './Pages/Videos/CreateVideos.jsx'
 import CreateShorts from './Pages/Shorts/CreateShorts.jsx'
 import CreatePlaylists from './Pages/Playlist/CreatePlaylists.jsx'
 import CreatePosts from './Pages/Post/CreatePosts.jsx'
+import GetAllContentData from './customHooks/GetAllContentData.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -32,6 +33,7 @@ const ProtectRoute = ({userData, children}) => {
 function App() {
   GetChannelData()
   GetCurrentUser()
+  GetAllContentData()
 
   const {userData} = useSelector(state => state.user)
 
