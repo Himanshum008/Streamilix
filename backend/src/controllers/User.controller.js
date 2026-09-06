@@ -111,7 +111,7 @@ export const updateChannel = async (req, res) => {
 export const getChannelData = async (req, res) => {
     try {
         const userId = req.userId
-        const channel = await Channel.findOne({Owner:userId}).populate("Owner")
+        const channel = await Channel.findOne({Owner:userId}).populate("Owner").populate("videos").populate("shorts")
 
         if (!channel) {
             return res.status(404).json({message: "Channel is not found"})
@@ -120,5 +120,34 @@ export const getChannelData = async (req, res) => {
         return res.status(200).json(channel)
     } catch (error) {
         return res.status(404).json({message: ` Failed to get Channel ${error}`})
+    }
+}
+
+export const toggleSubscribe = async (req, res) => {
+    try {
+        const {channelId} = req.body
+        const userId = req.userId
+
+        if (!channelId) {
+            return res.status(400).json({message:"Channel Id is required"})
+        }
+        const channel = await Channel.findById(channelId)
+        if (!channel) {
+            return res.status(400).json({message:"Channel is not found"})
+        }
+        const isSubscribed = channel?.subscribers?.includes(userId)
+
+        if (isSubscribed) {
+            channel?.subscribers.pull(userId)
+        }else {
+            channel?.subscribers.push(userId)
+        }
+        await channel.save()
+
+        const updatedChannel = await Channel.findById(channelId).populate("Owner")
+        .populate("videos").populate("shorts")
+        return res.status(200).json(updatedChannel)
+    } catch (error) {
+        return res.status(404).json({message: ` Failed to toggleSubscribe ${error}`})
     }
 }

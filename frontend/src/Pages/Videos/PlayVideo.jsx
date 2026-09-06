@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { 
     FaPlay, FaPause, FaForward, FaBackward, FaVolumeUp, FaVolumeMute, 
@@ -8,6 +9,8 @@ import {
 import { SiYoutubeshorts } from 'react-icons/si'
 import ShortCard from '../../components/ShortCard.jsx'
 import Description from '../../components/Description.jsx'
+import { serverUrl } from '../../App.jsx'
+import { ClipLoader } from 'react-spinners'
 
 const IconButton = ({icon:Icon, active, label, count, onClick})=>(
     <button className='flex flex-col items-center' onClick={onClick}>
@@ -35,6 +38,10 @@ function PlayVideo() {
     const [isMuted, setIsMuted] = useState(false)
     const [vol, setVol] = useState(1)
     const {userData} = useSelector(state=>state.user)
+    const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
+    const [isSubscribed, setIsSubscribed] = useState(channel?.subscribers?.some((sub)=>sub?._id?.toString() 
+    === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
 
     const {allVideosData, allShortsData} = useSelector(state=>state.content)
 
@@ -122,6 +129,30 @@ function PlayVideo() {
         }
     }
 
+    const handleSubscribe = async () => {
+        if (!channel._id) {
+            return;
+        }
+        setLoading(true)
+        try {
+            const result = await axios.post(serverUrl + "/api/user/togglesubscribe" , 
+                {channelId:channel._id} , {withCredentials:true})
+                setChannel((prev)=>({
+                    ...prev , subscribers:result.data.subscribers || prev.subscribers
+                }))
+                setLoading(false)
+                console.log(result.data);
+                
+        } catch (error) {
+            console.log(error);
+            setLoading(false)
+        }
+    }
+        useEffect(()=>{setIsSubscribed(channel?.subscribers?.some((sub)=>sub._id?.toString() 
+            === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
+        }),[channel?.subscribers , userData?._id]
+    
+
   return (
     <div className='flex bg-[#0f0f0f] text-white flex-col lg:flex-row gap-6 p-4 lg:p-6'>
         <div className='flex-1'>
@@ -189,8 +220,10 @@ function PlayVideo() {
                         <h1 className='text-md font-bold'>{channel?.name}</h1>
                         <h3 className='text-[13px]'>{channel?.subscribers?.length}</h3>
                     </div>
-                    <button className='px-5 py-2 rounded-4xl border border-gray-600 ml-5 text-md bg-white text-black
-                    hover:bg-orange-600 hover:text-black'>Subscribe</button>
+                    <button className={`px-5 py-2 rounded-4xl border border-gray-600 ml-5 text-md 
+                    ${isSubscribed ? "bg-black text-white hover:bg-orange-600 hover:text-black ": 
+                    "bg-white text-black hover:bg-orange-600 hover:text-black"} `} onClick={handleSubscribe}>
+                        {loading?<ClipLoader size={20} color='orange4'/>: isSubscribed ? "Subscribed" : "Subscribe"}</button>
                 </div>
                 <div className='flex items-center gap-6 mt-3'>
                     <IconButton icon={FaThumbsUp} label={"Likes"}
