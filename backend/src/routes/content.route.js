@@ -1,7 +1,14 @@
 import express from 'express'
 import isAuth from '../middlewares/isAuth.middleware.js'
 import upload from '../middlewares/multer.middleware.js'
-import { createVideo, getAllVideos } from '../controllers/video.controller.js'
+import { 
+    createVideo, 
+    getAllVideos, 
+    getViews, 
+    toggleDislikes, 
+    toggleLikes, 
+    toggleSave 
+} from '../controllers/video.controller.js'
 import { CreateShort, getAllShorts } from '../controllers/short.controller.js'
 
 
@@ -14,6 +21,11 @@ contentRouter.post("/create-video" , isAuth, upload.fields([
 ]),createVideo)
 
 contentRouter.get("/getallvideos", isAuth , getAllVideos)
+
+contentRouter.put("/video/:videoId/toggle-like" , isAuth , toggleLikes)
+contentRouter.put("/video/:videoId/toggle-dislike" , isAuth , toggleDislikes)
+contentRouter.put("/video/:videoId/toggle-save" , isAuth , toggleSave)
+contentRouter.put("/video/:videoId/add-view" , getViews)
 
 //Short Routes
 contentRouter.post("/create-short" , isAuth , upload.single("shortUrl"), CreateShort)

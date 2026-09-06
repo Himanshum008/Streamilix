@@ -59,3 +59,84 @@ export const getAllVideos = async (req, res) => {
         return res.status(500).json({message: `Failed to get videos ${error}`})
     }
 }
+
+export const toggleLikes = async (req, res) => {
+    try {
+        const {videoId} = req.params;
+        const userId = req.userId
+
+        const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(400).json({message:"Video is not found"})
+        }
+        if (video.likes.includes(userId)) {
+            video.likes.pull(userId)
+        }else{
+            video.likes.push(userId)
+            video.dislikes.pull(userId)
+        }
+        await video.save()
+        return res.status(200).json(video)
+    } catch (error) {
+        return res.status(500).json({message:`Failed to like video ${error}`})
+    }
+}
+
+export const toggleDislikes = async (req, res) => {
+    try {
+        const {videoId} = req.params;
+        const userId = req.userId
+
+        const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(400).json({message:"Video is not found"})
+        }
+        if (video.dislikes.includes(userId)) {
+            video.dislikes.pull(userId)
+        }else{
+            video.dislikes.push(userId)
+            video.likes.pull(userId)
+        }
+        await video.save()
+        return res.status(200).json(video)
+    } catch (error) {
+        return res.status(500).json({message:`Failed to dislike video ${error}`})
+    }
+}
+
+export const toggleSave = async (req, res) => {
+    try {
+        const {videoId} = req.params;
+        const userId = req.userId
+
+        const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(400).json({message:"Video is not found"})
+        }
+        if (video.saveBy.includes(userId)) {
+            video.saveBy.pull(userId)
+        }else{
+            video.saveBy.push(userId)
+        }
+        await video.save()
+        return res.status(200).json(video)
+    } catch (error) {
+        return res.status(500).json({message:`Failed to save video ${error}`})
+    }
+}
+
+export const getViews = async (req, res) => {
+    try {
+        const {videoId} = req.params;
+        const video = await Video.findByIdAndUpdate(videoId , {
+            $inc : {views : 1}
+        },{new:true})
+        if (!video) {
+            return res.status(400).json({message:"Video is not found"})
+        }
+        return res.status(200).json(video)
+
+    } catch (error) {
+        return res.status(500).json({message:`Error adding view ${error}`})
+    }
+}

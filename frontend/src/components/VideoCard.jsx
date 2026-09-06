@@ -16,7 +16,7 @@ function VideoCard({thumbnail, duration, channelLogo, title, channelName, views,
             <div className=''>
                 <h3 className='text-sm font-semibold leading-snug line-clamp-2'>{title}</h3>
                 <p className='text-xs text-gray-400 mt-1'>{channelName}</p>
-                <p className='text-xs text-gray-400'>0{views}</p>
+                <p className='text-xs text-gray-400'>{views} views</p>
             </div>
         </div>
     </div>

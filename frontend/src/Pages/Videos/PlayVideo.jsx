@@ -11,6 +11,7 @@ import ShortCard from '../../components/ShortCard.jsx'
 import Description from '../../components/Description.jsx'
 import { serverUrl } from '../../App.jsx'
 import { ClipLoader } from 'react-spinners'
+import { setAllVideosData } from '../../redux/contentSlice.js'
 
 const IconButton = ({icon:Icon, active, label, count, onClick})=>(
     <button className='flex flex-col items-center' onClick={onClick}>
@@ -54,13 +55,25 @@ function PlayVideo() {
         }
         const currentVideo = allVideosData.find((v)=>v._id === videoId)
         console.log(currentVideo);
-        
-
         if (currentVideo) {
             setVideo(currentVideo)
             setChannel(currentVideo.channel)
         }
-    },[videoId, allVideosData])
+
+        const addViews = async () => {
+            try {
+                const result = await axios.put(`${serverUrl}/api/content/video/${videoId}/add-view` , {} , {withCredentials:true}) 
+                setVideo((prev)=> prev ? {...prev , views: result.data.views} : prev)
+
+                const UpdatedVideo = allVideosData.map((v)=>v._id === videoId ? {...v , views:result.data.views} : v)
+                dispatch(setAllVideosData(UpdatedVideo))
+            } catch (error) {
+                console.log(error);
+                
+            }
+        }
+        addViews()
+    },[])
 
     const handleUpdateTime = ()=> {
         if(!videoRef.current) return;
@@ -148,10 +161,45 @@ function PlayVideo() {
             setLoading(false)
         }
     }
-        useEffect(()=>{setIsSubscribed(channel?.subscribers?.some((sub)=>sub._id?.toString() 
-            === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
-        }),[channel?.subscribers , userData?._id]
-    
+    useEffect(()=>{setIsSubscribed(channel?.subscribers?.some((sub)=>sub._id?.toString() 
+        === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
+    }),[channel?.subscribers , userData?._id]
+
+    const toggleLike = async () => {
+        try {
+            const result = await axios.put(`${serverUrl}/api/content/video/${videoId}/toggle-like` , 
+                {} , {withCredentials:true})
+            setVideo(result.data)
+            console.log(result.data);
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
+
+    const toggleDislike = async () => {
+        try {
+            const result = await axios.put(`${serverUrl}/api/content/video/${videoId}/toggle-dislike` , 
+                {} , {withCredentials:true})
+            setVideo(result.data)
+            console.log(result.data);
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
+
+    const toggleSave = async () => {
+        try {
+            const result = await axios.put(`${serverUrl}/api/content/video/${videoId}/toggle-save` , 
+                {} , {withCredentials:true})
+            setVideo(result.data)
+            console.log(result.data);
+        } catch (error) {
+            console.log(error);
+            
+        }
+    }
 
   return (
     <div className='flex bg-[#0f0f0f] text-white flex-col lg:flex-row gap-6 p-4 lg:p-6'>
@@ -227,13 +275,13 @@ function PlayVideo() {
                 </div>
                 <div className='flex items-center gap-6 mt-3'>
                     <IconButton icon={FaThumbsUp} label={"Likes"}
-                    active={video?.dislikes?.includes(userData._id)} count={video?.dislikes?.length}/>
+                    active={video?.likes?.includes(userData._id)} count={video?.likes?.length} onClick={toggleLike}/>
                     <IconButton icon={FaThumbsDown} label={"Dislikes"}
-                    active={video?.likes?.includes(userData._id)} count={video?.likes?.length}/>
+                    active={video?.dislikes?.includes(userData._id)} count={video?.dislikes?.length} onClick={toggleDislike}/>
                     <IconButton icon={FaDownload} label={"Download"} onClick={()=>{
                         const link = document.createElement("a"); link.href = video?.videoUrl; 
                         link.download = `${video?.title}.mp4`; link.click();}}/>
-                    <IconButton icon={FaBookmark} label={"Save"}
+                    <IconButton icon={FaBookmark} label={"Save"} onClick={toggleSave}
                     active={video?.saveBy?.includes(userData._id)}/>
                 </div>
             </div>

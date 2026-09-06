@@ -46,6 +46,7 @@ function AllVideosPage() {
                 channelLogo={video?.channel.avatar}
                 channelName={video?.channel?.name}
                 id={video?._id}
+                views={video?.views}
                 />
             ))
         }
