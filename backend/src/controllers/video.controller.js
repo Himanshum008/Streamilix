@@ -50,7 +50,7 @@ export const createVideo = async (req,res) => {
 
 export const getAllVideos = async (req, res) => {
     try {
-        const videos = await Video.find().sort({createdAt : -1}).populate("channel")
+        const videos = await Video.find().sort({createdAt : -1}).populate("channel comments.author comments.replies.author")
         if (!videos) {
             return res.status(400).json({message: "Videos are not found"})
         }
@@ -138,5 +138,68 @@ export const getViews = async (req, res) => {
 
     } catch (error) {
         return res.status(500).json({message:`Error adding view ${error}`})
+    }
+}
+
+export const addComment = async (req, res) => {
+    try {
+        const {videoId} = req.params
+        const {message} = req.body
+        const userId = req.userId
+
+        const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(400).json({message:"Video is not found"})
+        }
+
+        video?.comments?.push({author : userId , message})
+        await video.save()
+        const populatedVideo = await Video.findById(videoId)
+        .populate({
+            path: "comments.author",
+            select: "username photoUrl email"
+        })
+        .populate({
+            path: "comments.replies.author",
+            select: "username photoUrl email"
+        });
+        return res.status(200).json(populatedVideo)
+
+    } catch (error) {
+        return res.status(500).json({message:`Error adding comments ${error}`})
+    }
+}
+
+export const addReply = async (req, res) => {
+    try {
+        const {videoId , commentId} = req.params
+        const {message} = req.body;
+        const userId = req.userId;
+
+         const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(400).json({message:"Video is not found"})
+        }
+
+        const comment = await video.comments.id(commentId)
+        if (!comment) {
+            return res.status(400).json({message:"Comment is not found"})
+        }
+        comment.replies.push({author:userId , message})
+        await video.save()
+
+        const populatedVideo = await Video.findById(videoId)
+        .populate({
+            path: "comments.author",
+            select: "username photoUrl email"
+        })
+        .populate({
+            path: "comments.replies.author",
+            select: "username photoUrl email"
+        });
+        return res.status(200).json(populatedVideo)
+
+    } catch (error) {
+        return res.status(500).json({message:`Error adding reply ${error}`})
     }
 }

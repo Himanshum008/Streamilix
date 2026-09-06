@@ -2,6 +2,8 @@ import express from 'express'
 import isAuth from '../middlewares/isAuth.middleware.js'
 import upload from '../middlewares/multer.middleware.js'
 import { 
+    addComment,
+    addReply,
     createVideo, 
     getAllVideos, 
     getViews, 
@@ -26,6 +28,9 @@ contentRouter.put("/video/:videoId/toggle-like" , isAuth , toggleLikes)
 contentRouter.put("/video/:videoId/toggle-dislike" , isAuth , toggleDislikes)
 contentRouter.put("/video/:videoId/toggle-save" , isAuth , toggleSave)
 contentRouter.put("/video/:videoId/add-view" , getViews)
+
+contentRouter.post("/video/:videoId/add-comment" , isAuth , addComment)
+contentRouter.post("/video/:videoId/:commentId/add-reply" , isAuth , addReply)
 
 //Short Routes
 contentRouter.post("/create-short" , isAuth , upload.single("shortUrl"), CreateShort)

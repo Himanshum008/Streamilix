@@ -40,9 +40,13 @@ function PlayVideo() {
     const [vol, setVol] = useState(1)
     const {userData} = useSelector(state=>state.user)
     const [loading, setLoading] = useState(false)
+    const [loading1, setLoading1] = useState(false)
+    const [loading2, setLoading2] = useState(false)
+    const [comment, setComment] = useState([])
+    const [newComment, setNewComment] = useState([])
     const dispatch = useDispatch()
     const [isSubscribed, setIsSubscribed] = useState(channel?.subscribers?.some((sub)=>sub?._id?.toString() 
-    === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
+        === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
 
     const {allVideosData, allShortsData} = useSelector(state=>state.content)
 
@@ -58,6 +62,7 @@ function PlayVideo() {
         if (currentVideo) {
             setVideo(currentVideo)
             setChannel(currentVideo.channel)
+            setComment(currentVideo?.comments)
         }
 
         const addViews = async () => {
@@ -73,7 +78,7 @@ function PlayVideo() {
             }
         }
         addViews()
-    },[])
+    },[videoId])
 
     const handleUpdateTime = ()=> {
         if(!videoRef.current) return;
@@ -161,9 +166,7 @@ function PlayVideo() {
             setLoading(false)
         }
     }
-    useEffect(()=>{setIsSubscribed(channel?.subscribers?.some((sub)=>sub._id?.toString() 
-        === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
-    }),[channel?.subscribers , userData?._id]
+    
 
     const toggleLike = async () => {
         try {
@@ -200,6 +203,43 @@ function PlayVideo() {
             
         }
     }
+
+    const handleAddComment = async () => {
+        if(!newComment)return;
+        setLoading1(true)
+        try {
+            const result = await axios.post(`${serverUrl}/api/content/video/${videoId}/add-comment` , 
+                {message:newComment} , {withCredentials:true})
+                setComment(prev=>[result.data?.comments.slice(-1)[0] , ...prev])
+                setComment(result.data?.comments)
+                console.log(result.data?.comments);
+                setLoading1(false)
+                setNewComment("")
+        } catch (error) {
+            console.log(error);
+            setLoading1(false)
+        }
+    }
+
+    const handleReply = async ({commentId , replyText}) => {
+        if(!replyText)return;
+        setLoading2(true)
+
+        try {
+            const result = await axios.post(`${serverUrl}/api/content/video/${videoId}/${commentId}/add-reply` , 
+                {message:replyText} , {withCredentials:true})
+                setComment(result.data?.comments)
+                console.log(result.data?.comments);
+                setLoading2(false)
+        } catch (error) {
+            console.log(error);
+            setLoading2(false)
+        }
+    }
+    
+    useEffect(()=>{setIsSubscribed(channel?.subscribers?.some((sub)=>sub._id?.toString() 
+        === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
+    }),[channel?.subscribers , userData?._id]
 
   return (
     <div className='flex bg-[#0f0f0f] text-white flex-col lg:flex-row gap-6 p-4 lg:p-6'>
@@ -294,8 +334,38 @@ function PlayVideo() {
                 <h2 className='text-lg font-semibold mb-3'>Comments</h2>
                 <div className='flex gap-2 mb-4'>
                     <input type="text" placeholder='Add a comment....' className='flex-1 border border-gray-700 bg-[#1a1a1a] 
-                    text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-orange-600'/>
-                    <button className='bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg'>Post</button>
+                    text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-orange-600'
+                    onChange={(e)=>setNewComment(e.target.value)} value={newComment}/>
+                    <button className='bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg' disabled={loading1}
+                    onClick={handleAddComment}>{loading1 ? <ClipLoader size={20} color='black'/>:"Post"}</button>
+                </div>
+                <div className='space-y-3 max-h-75 overflow-y-auto pr-2'>
+                    {comment?.map((comment)=>(
+                        <div key={comment?._id} className='p-3 bg-[#1a1a1a] rounded-lg shadow-sm text-sm'>
+                            <div className='flex items-center justify-start gap-1'>
+                                <img src={comment?.author?.photoUrl} alt="" className='w-8 h-8 rounded-full object-cover'/>
+                                <h2 className='text-[13px]'>@{comment?.author?.username.toLowerCase()}</h2>
+                            </div>
+                            <p className='font-medium px-5 py-5'>{comment?.message}</p>
+
+                            <div className='ml-4 mt-2 space-y-2'>
+                                {
+                                    comment?.replies.map((reply)=>(
+                                        <div key={reply._id} className='p-2 bg-[#2a2a2a] rounded'>
+                                            <div className='flex items-center justify-start gap-1'>
+                                                <img src={reply?.author?.photoUrl} alt="" className='w-6 h-6 rounded-full object-cover'/>
+                                                <h2 className='text-[13px]'>@{reply?.author?.username.toLowerCase()}</h2>
+                                                <p className='px-5 py-5'>{reply.message}</p>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+
+                            <ReplySection comment={comment} handleReply={handleReply} loading2={loading2}/>
+
+                        </div>
+                    ))}
                 </div>
             </div>
             
@@ -334,6 +404,31 @@ function PlayVideo() {
             </div>
     </div>
   )
+}
+
+const ReplySection = ({comment, handleReply, loading2})=>{
+    const [replyText, setReplyText] = useState("")
+    const [showReplyInput, setShowReplyInput] = useState(false)
+
+    return(
+        <div className='mt-3'>
+            {showReplyInput && 
+            <div className='flex gap-2 mt-1 ml-4'>
+                <input type="text" 
+                placeholder='Add a reply...!' 
+                className='flex-1 border border-gray-700 bg-[#1a1a1a] text-white rounded-lg px-2 py-2 focus:ring-1 
+                focus:ring-orange-600 text-sm' 
+                onChange={(e)=>setReplyText(e.target.value)} value={replyText}/>
+                <button onClick={()=>{handleReply({commentId:comment._id , replyText:replyText}); 
+                setShowReplyInput(false); setReplyText("")}} disabled={loading2}
+                    className='bg-orange-600 hover:bg-orange-700 text-white px-3 rounded-lg text-sm'>
+                        {loading2 ? <ClipLoader color='black'/> : "Reply"}</button>
+            </div>}
+
+            <button onClick={()=>setShowReplyInput(!showReplyInput)} className='ml-4 text-xs text-gray-400 mt-1'>reply</button>
+
+        </div>
+    )
 }
 
 export default PlayVideo
