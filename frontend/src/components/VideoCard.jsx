@@ -1,8 +1,10 @@
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function VideoCard({thumbnail, duration, channelLogo, title, channelName, views, id}) {
+    const navigate = useNavigate()
   return (
-    <div className='w-90 cursor-pointer'>
+    <div className='w-90 cursor-pointer' onClick={()=>navigate(`/playvideo/${id}`)}>
         <div className='relative'>
             <img src={thumbnail} alt={title} className='rounded-xl w-full h-50 border border-gray-800 object-cover'/>
             <span className='absolute bottom-2 right-2 bg-black text-white text-xs px-1 rounded'>{duration}</span>
