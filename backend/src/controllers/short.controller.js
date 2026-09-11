@@ -38,12 +38,155 @@ export const CreateShort = async (req , res) => {
 
 export const getAllShorts = async (req, res) => {
     try {
-        const shorts = await Short.find().sort({createdAt : -1}).populate("channel")
+        const shorts = await Short.find().sort({createdAt : -1}).populate("channel comments.author comments.replies.author")
         if (!shorts) {
             return res.status(400).json({message: "Shorts are not found"})
         }
         return res.status(200).json(shorts)
     } catch (error) {
         return res.status(500).json({message: `Failed to get shorts ${error}`})
+    }
+}
+
+export const toggleLikes1 = async (req, res) => {
+    try {
+        const {shortId} = req.params;
+        const userId = req.userId
+
+        const short = await Short.findById(shortId)
+        if (!short) {
+            return res.status(400).json({message:"Short is not found"})
+        }
+        if (short.likes.includes(userId)) {
+            short.likes.pull(userId)
+        }else{
+            short.likes.push(userId)
+            short.dislikes.pull(userId)
+        }
+        await short.populate("comments.author", "username photoUrl")
+        await short.populate("channel")
+        await short.populate("comments.replies.author", "username photoUrl")
+        await short.save()
+        return res.status(200).json(short)
+    } catch (error) {
+        return res.status(500).json({message:`Failed to like short ${error}`})
+    }
+}
+
+export const toggleDislikes1 = async (req, res) => {
+    try {
+        const {shortId} = req.params;
+        const userId = req.userId
+
+        const short = await Short.findById(shortId)
+        if (!short) {
+            return res.status(400).json({message:"Short is not found"})
+        }
+        if (short.dislikes.includes(userId)) {
+            short.dislikes.pull(userId)
+        }else{
+            short.dislikes.push(userId)
+            short.likes.pull(userId)
+        }
+        await short.populate("comments.author", "username photoUrl")
+        await short.populate("channel")
+        await short.populate("comments.replies.author", "username photoUrl")
+        await short.save()
+        return res.status(200).json(short)
+    } catch (error) {
+        return res.status(500).json({message:`Failed to dislike short ${error}`})
+    }
+}
+
+export const toggleSave1 = async (req, res) => {
+    try {
+        const {shortId} = req.params;
+        const userId = req.userId
+
+        const short = await Short.findById(shortId)
+        if (!short) {
+            return res.status(400).json({message:"Short is not found"})
+        }
+        if (short.saveBy.includes(userId)) {
+            short.saveBy.pull(userId)
+        }else{
+            short.saveBy.push(userId)
+        }
+        await short.populate("channel")
+        await short.save()
+        return res.status(200).json(short)
+    } catch (error) {
+        return res.status(500).json({message:`Failed to save short ${error}`})
+    }
+}
+
+export const getViews1 = async (req, res) => {
+    try {
+        const {shortId} = req.params;
+        const short = await Short.findByIdAndUpdate(shortId , {
+            $inc : {views : 1}
+        },{new:true})
+        if (!short) {
+            return res.status(400).json({message:"Short is not found"})
+        }
+        await short.populate("comments.author", "username photoUrl")
+        await short.populate("channel")
+        await short.populate("comments.replies.author", "username photoUrl")
+        return res.status(200).json(short)
+
+    } catch (error) {
+        return res.status(500).json({message:`Error adding view ${error}`})
+    }
+}
+
+export const addComment1 = async (req, res) => {
+    try {
+        const {shortId} = req.params
+        const {message} = req.body
+        const userId = req.userId
+
+        const short = await Short.findById(shortId)
+        if (!short) {
+            return res.status(400).json({message:"Short is not found"})
+        }
+
+        short?.comments?.push({author : userId , message})
+        await short.save()
+        await short.populate("comments.author", "username photoUrl")
+        await short.populate("channel")
+        await short.populate("comments.replies.author", "username photoUrl")
+        
+        return res.status(200).json(short)
+
+    } catch (error) {
+        return res.status(500).json({message:`Error adding comments ${error}`})
+    }
+}
+
+export const addReply1 = async (req, res) => {
+    try {
+        const {shortId , commentId} = req.params
+        const {message} = req.body;
+        const userId = req.userId;
+
+         const short = await Short.findById(shortId)
+        if (!short) {
+            return res.status(400).json({message:"Short is not found"})
+        }
+
+        const comment = await short.comments.id(commentId)
+        if (!comment) {
+            return res.status(400).json({message:"Comment is not found"})
+        }
+        comment.replies.push({author:userId , message})
+        await short.save()
+        await short.populate("comments.author", "username photoUrl")
+        await short.populate("channel")
+        await short.populate("comments.replies.author", "username photoUrl")
+
+        return res.status(200).json(short)
+
+    } catch (error) {
+        return res.status(500).json({message:`Error adding reply ${error}`})
     }
 }

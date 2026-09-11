@@ -382,6 +382,7 @@ function PlayVideo() {
                             channelName={short?.channel?.name}
                             avatar={short?.channel?.avatar}
                             id={short?._id}
+                            views={short?.views}
                             />
                         </div>
                     ))}

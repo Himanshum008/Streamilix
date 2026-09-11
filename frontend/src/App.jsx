@@ -20,6 +20,7 @@ import CreatePlaylists from './Pages/Playlist/CreatePlaylists.jsx'
 import CreatePosts from './Pages/Post/CreatePosts.jsx'
 import GetAllContentData from './customHooks/GetAllContentData.jsx'
 import PlayVideo from './Pages/Videos/PlayVideo.jsx'
+import PlayShort from './Pages/Shorts/PlayShort.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -45,7 +46,8 @@ function App() {
   <Route path='/' element={<Home />} >
     <Route path='/mobileprofile' element={<ProtectRoute userData={userData}><MobileProfile /></ProtectRoute>} />
     <Route path='/viewchannel' element={<ProtectRoute userData={userData}><ViewChannel /></ProtectRoute>} />
-    <Route path='/shorts' element={<ProtectRoute userData={userData}><Shorts /></ProtectRoute>} />
+    <Route path='/shorts' element={<ProtectRoute userData={userData}><PlayShort /></ProtectRoute>} />
+    <Route path='/playshort/:shortId' element={<ProtectRoute userData={userData}><Shorts /></ProtectRoute>} />
     <Route path='/updatechannel' element={<ProtectRoute userData={userData}><UpdateChannel /></ProtectRoute>} />
      <Route path='/create' element={<ProtectRoute userData={userData}><CreatePage /></ProtectRoute>} />
     <Route path='/createvideo' element={<ProtectRoute userData={userData}><CreateVideos /></ProtectRoute>} />

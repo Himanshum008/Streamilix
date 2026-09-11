@@ -11,7 +11,16 @@ import {
     toggleLikes, 
     toggleSave 
 } from '../controllers/video.controller.js'
-import { CreateShort, getAllShorts } from '../controllers/short.controller.js'
+import { 
+    addComment1, 
+    addReply1, 
+    CreateShort, 
+    getAllShorts, 
+    getViews1, 
+    toggleDislikes1, 
+    toggleLikes1, 
+    toggleSave1 
+} from '../controllers/short.controller.js'
 
 
 const contentRouter = express.Router()
@@ -36,5 +45,13 @@ contentRouter.post("/video/:videoId/:commentId/add-reply" , isAuth , addReply)
 contentRouter.post("/create-short" , isAuth , upload.single("shortUrl"), CreateShort)
 
 contentRouter.get("/getallshorts", isAuth , getAllShorts)
+
+contentRouter.put("/short/:shortId/toggle-like" , isAuth , toggleLikes1)
+contentRouter.put("/short/:shortId/toggle-dislike" , isAuth , toggleDislikes1)
+contentRouter.put("/short/:shortId/toggle-save" , isAuth , toggleSave1)
+contentRouter.put("/short/:shortId/add-view" , getViews1)
+
+contentRouter.post("/short/:shortId/add-comment" , isAuth , addComment1)
+contentRouter.post("/short/:shortId/:commentId/add-reply" , isAuth , addReply1)
 
 export default contentRouter;

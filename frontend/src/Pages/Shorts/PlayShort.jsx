@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { useParams } from 'react-router-dom'
 import { 
     FaPlay,
     FaPause, 
@@ -8,7 +9,7 @@ import {
     FaDownload, 
     FaBookmark,
     FaComment,
-    FaArrowDown,
+    FaArrowDown, 
 } from 'react-icons/fa'
 import Description from '../../components/Description.jsx'
 import axios from 'axios'
@@ -20,14 +21,15 @@ const IconButton = ({icon:Icon, active, label, count, onClick})=>(
         <div className={`${active ? "bg-white" : "bg-[#00000065] border border-gray-700"} 
         p-3 rounded-full hover:bg-gray-700 transition`}>
             <Icon size={20} className={`${active ? "text-black" : "text-white"}`}/>
-            
         </div>
         <span className='text-xs mt-1 flex gap-1'>{count !== undefined && `${count}`} <span>{label}</span></span>
     </button>
 )
 
-function Shorts() {
+function PlayShort() {
+const {shortId} = useParams()
   const {allShortsData} = useSelector(state=>state.content)
+  const selectedShort = allShortsData?.find((s)=>s._id === shortId)
   const {userData} = useSelector(state=>state.user)
 
   const [shortList, setShortList] = useState([])
@@ -41,6 +43,29 @@ function Shorts() {
   const [reply, setReply] = useState(false)
   const [replyText, setReplyText] = useState({})
   
+
+  useEffect(()=>{
+    if (!allShortsData || allShortsData.length === 0) return;
+
+    if (selectedShort) {
+        const selected = allShortsData.find(
+            (short) => short._id === selectedShort._id
+        );
+
+        const remaining = allShortsData.find(
+            (short) => short._id !== selectedShort._id
+        );
+
+        if (selected) {
+            setShortList([selected, ...remaining]);
+        }else{
+            setShortList(allShortsData);
+        }
+    }else{
+        setShortList(allShortsData)
+    }
+
+  },[allShortsData , allShortsData])
 
   useEffect(()=>{
     const observer = new IntersectionObserver((entries)=> {
@@ -183,19 +208,14 @@ function Shorts() {
         }
   }
 
-  useEffect(()=>{
-    if (!allShortsData || allShortsData.length === 0) return;
-
-    const shuffled = [...allShortsData].sort(()=>Math.random() - 0.5);
-    setShortList(shuffled)
-  },[allShortsData])
+  
 
   return (
     <div className='h-screen w-full overflow-y-scroll snap-y snap-mandatory'>
       {shortList.map((short , index)=>(
-        <div key={short?._id} className='min-h-screen w-full flex md:items-center items-start justify-center mt-12.5 md:pt-0
-        snap-start pt-10'>
-          <div className='relative w-105 md:w-87.5 aspect-9/16 bg-black rounded-2xl overflow-hidden shadow-xl border 
+        <div key={short?._id} className='min-h-screen w-full flex md:items-center items-start justify-center mt-12.5
+        snap-start'>
+          <div className='relative w-105 md:w-87.5 aspect-9/16 bg-black mt-120 md:pt-0 rounded-2xl overflow-hidden shadow-xl border 
           border-gray-700 cursor-pointer' onClick={()=>togglePlay(index)}>
             <video
             ref={(el)=>(shortRefs.current[index] = el)}
@@ -321,4 +341,4 @@ function Shorts() {
   )
 }
 
-export default Shorts;
+export default PlayShort;
