@@ -2,6 +2,7 @@ import express from 'express'
 import isAuth from '../middlewares/isAuth.middleware.js'
 import { 
     createChannel,
+    getAllChannelData,
     getChannelData,
     getCurrentUser,
     toggleSubscribe,
@@ -24,6 +25,8 @@ userRouter.post("/updatechannel" , isAuth , upload.fields([
 ]), updateChannel)
 
 userRouter.get("/getchannel", isAuth, getChannelData)
+
+userRouter.get("/allchanneldata" , isAuth , getAllChannelData)
 
 userRouter.post("/togglesubscribe" , isAuth , toggleSubscribe)
 

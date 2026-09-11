@@ -1,3 +1,4 @@
+import path from "path"
 import uploadOnCloudinary from "../config/cloudinary.js"
 import Channel from "../models/channel.model.js"
 import User from "../models/user.model.js"
@@ -157,6 +158,25 @@ export const getAllChannelData = async (req, res) => {
         const channels = await Channel.find().populate("Owner")
         .populate("videos")
         .populate("shorts")
+        .populate("subscribers")
+        .populate({
+            path: "communityPosts",
+            populate: {
+                path: "channel",
+                model: "channel",
+            },
+        })
+        .populate({
+            path:"playlists", 
+            populate:{
+                path:"videos",
+                model: "video",
+                populate: {
+                    path: "channel",
+                    model: "channel",
+                }
+            }
+        })
 
         if (!channels) {
             return res.status(400).json({message:"Channels are not found"})

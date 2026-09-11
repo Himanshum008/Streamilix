@@ -8,7 +8,7 @@ export const createPost = async (req, res) => {
         const {channelId, content} = req.body
         const file = req.file
 
-        if (!channelId || content) {
+        if (!channelId || !content) {
             return res.status(400).json({message:"ChannelId and content are required"})
         }
         let imageUrl = null

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { setChannelData } from '../redux/userSlice.js'
+import { setAllChannelData, setChannelData } from '../redux/userSlice.js'
 import { serverUrl } from '../App.jsx'
 
 function GetChannelData() {
@@ -22,6 +22,23 @@ function GetChannelData() {
             }
         }
         fetchChannel()
+    },[])
+    useEffect(()=>{
+        const fetchAllChannel = async () => {
+            try {
+                const result = await axios.get(serverUrl + "/api/user/allchannel", {
+                    withCredentials: true
+                })
+                dispatch(setAllChannelData(result.data))
+                console.log(result.data);
+                
+            } catch (error) {
+                console.log(error);
+                
+                dispatch(setAllChannelData(null))
+            }
+        }
+        fetchAllChannel()
     },[])
 }
 
