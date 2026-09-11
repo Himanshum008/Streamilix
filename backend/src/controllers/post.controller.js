@@ -1,9 +1,9 @@
 import uploadOnCloudinary from "../config/cloudinary.js"
-import Channel from "../models/channel.model"
+import Channel from "../models/channel.model.js"
 import Post from "../models/post.model.js"
 
 
-export const CreatePost = async (req, res) => {
+export const createPost = async (req, res) => {
     try {
         const {channelId, content} = req.body
         const file = req.file
@@ -13,7 +13,7 @@ export const CreatePost = async (req, res) => {
         }
         let imageUrl = null
         if(file){
-            imageUrl = await uploadOnCloudinary(file.path)
+            imageUrl = await uploadOnCloudinary(file.path) 
         }
         const post = await Post.create({
             channel:channelId,
@@ -30,7 +30,7 @@ export const CreatePost = async (req, res) => {
     }
 }
 
-export const getAllPost = async (req, res) => {
+export const getAllPosts = async (req, res) => {
     try {
         const posts = await Post.find().sort({createdAt : -1}).populate("channel comments.author comments.replies.author")
         if (!posts) {

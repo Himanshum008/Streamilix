@@ -21,6 +21,8 @@ import {
     toggleLikes1, 
     toggleSave1 
 } from '../controllers/short.controller.js'
+import { CreatePlaylist, toggleSavePlaylist } from '../controllers/playlist.controller.js'
+import { addCommentForPost, addReplyForPost, createPost, getAllPosts, toggleLikesForPost } from '../controllers/post.controller.js'
 
 
 const contentRouter = express.Router()
@@ -53,5 +55,18 @@ contentRouter.put("/short/:shortId/add-view" , getViews1)
 
 contentRouter.post("/short/:shortId/add-comment" , isAuth , addComment1)
 contentRouter.post("/short/:shortId/:commentId/add-reply" , isAuth , addReply1)
+
+// Playlist routes
+
+contentRouter.post("/create-playlist" , isAuth , CreatePlaylist)
+contentRouter.post("/playlist/toggle-save" , isAuth , toggleSavePlaylist)
+
+//Post routes
+
+contentRouter.post("/create-post" , isAuth , upload.single("image"), createPost)
+contentRouter.get("getposts",getAllPosts)
+contentRouter.post("/post/toggle-like" , isAuth , toggleLikesForPost)
+contentRouter.post("/post/add-comment" , isAuth , addCommentForPost)
+contentRouter.post("/post/add-reply" , isAuth , addReplyForPost)
 
 export default contentRouter;
