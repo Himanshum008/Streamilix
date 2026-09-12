@@ -24,6 +24,7 @@ import PlayShort from './Pages/Shorts/PlayShort.jsx'
 import ChannelPage from './Pages/Channel/ChannelPage.jsx'
 import LikedContent from './Pages/LikedContent.jsx'
 import SavedContent from './Pages/SavedContent.jsx'
+import SavedPlaylist from './Pages/Playlist/SavedPlaylist.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -60,6 +61,7 @@ function App() {
     <Route path='/channelpage/:channelId' element={<ProtectRoute userData={userData}><ChannelPage /></ProtectRoute>} />
     <Route path='/likedcontent' element={<ProtectRoute userData={userData}><LikedContent /></ProtectRoute>} />
     <Route path='/savedcontent' element={<ProtectRoute userData={userData}><SavedContent /></ProtectRoute>} />
+    <Route path='/savedplaylist' element={<ProtectRoute userData={userData}><SavedPlaylist /></ProtectRoute>} />
   </Route>
   <Route path='/signup' element={<SignUp />} />
   <Route path='/signin' element={<SignIn />} />

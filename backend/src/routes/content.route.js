@@ -25,7 +25,7 @@ import {
     toggleLikes1, 
     toggleSave1 
 } from '../controllers/short.controller.js'
-import { CreatePlaylist, toggleSavePlaylist } from '../controllers/playlist.controller.js'
+import { CreatePlaylist, getSavedPlaylist, toggleSavePlaylist } from '../controllers/playlist.controller.js'
 import { addCommentForPost, addReplyForPost, createPost, getAllPosts, toggleLikesForPost } from '../controllers/post.controller.js'
 
 
@@ -68,6 +68,7 @@ contentRouter.get("/savedshort" , isAuth , getSavedShort)
 
 contentRouter.post("/create-playlist" , isAuth , CreatePlaylist)
 contentRouter.post("/playlist/toggle-save" , isAuth , toggleSavePlaylist)
+contentRouter.get("/savedplaylist" , isAuth , getSavedPlaylist)
 
 //Post routes
 

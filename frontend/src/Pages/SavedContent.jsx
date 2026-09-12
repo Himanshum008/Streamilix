@@ -58,6 +58,14 @@ function SavedContent() {
         fetchSavedContent()
     },[])
 
+    if ((!savedShort && !savedVideo) || (savedShort.length === 0 && savedVideo.length === 0)) {
+        return (
+            <div className='flex justify-center items-center h-[70vh] text-gray-400 text-xl'>
+                No Saved Content Found
+            </div>
+        )
+    }
+
     
 
   return (
@@ -88,9 +96,9 @@ function SavedContent() {
         {savedVideo.length > 0 && (
             <>
             <h2 className='text-2xl font-bold mb-6 pt-12.5 border-b border-gray-300 pb-2 flex items-center gap-1'>
-                <GoVideo className='w-7 h-7 text-orange-600'/>Liked Videos
+                <GoVideo className='w-7 h-7 text-orange-600'/>Saved Videos
             </h2>
-            <div className='flex gap-4 overflow-x-auto pb-4 scrollbar-hide'>
+            <div className='flex flex-wrap gap-6'>
                 {savedVideo?.map((video)=>(
                     <div key={video?._id} className='shrink-0'>
                         <VideoCard
@@ -98,7 +106,7 @@ function SavedContent() {
                         key={video._id}
                         duration={duration[video?._id] || "0:00"}
                         title={video?.title}
-                        channelLogo={video?.channel.avatar}
+                        channelLogo={video?.channel?.avatar}
                         channelName={video?.channel?.name}
                         id={video?._id}
                         views={video?.views}

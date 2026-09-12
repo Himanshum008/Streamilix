@@ -58,6 +58,14 @@ function LikedContent() {
         fetchLikedContent()
     },[])
 
+    if ((!likedShort && !likedVideo) || (likedShort.length === 0 && likedVideo.length === 0)) {
+        return (
+            <div className='flex justify-center items-center h-[70vh] text-gray-400 text-xl'>
+                No Liked Content Found
+            </div>
+        )
+    }
+
     
 
   return (
@@ -68,7 +76,7 @@ function LikedContent() {
             <h2 className='text-2xl font-bold mb-6 pt-12.5 border-b border-gray-300 pb-2 flex items-center gap-1'>
                 <SiYoutubeshorts className='w-7 h-7 text-orange-600'/>Liked Shorts
             </h2>
-            <div className='flex gap-4 overflow-x-auto pb-4 scrollbar-hide'>
+            <div className='flex flex-wrap gap-6'>
                 {likedShort?.map((short)=>(
                     <div key={short?._id} className='shrink-0'>
                         <ShortCard
