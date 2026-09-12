@@ -14,7 +14,7 @@ import { GoVideo } from 'react-icons/go'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { setUserData } from '../redux/userSlice.js'
-import { serverUrl } from '../App'
+import { serverUrl } from '../App.jsx'
 import { showCustomAlert } from './CustomAlert.jsx'
 import { signInWithPopup } from 'firebase/auth'
 import { auth, provider } from '../../utils/firebase.js'
@@ -91,7 +91,7 @@ function MobileProfile() {
             <ProfileMeanuItem icon={<FaHistory />} text={"History"} />
             <ProfileMeanuItem icon={<FaList />} text={"Playlists"} />
             <ProfileMeanuItem icon={<GoVideo />} text={"Save Videos"} />
-            <ProfileMeanuItem icon={<FaThumbsUp />} text={"Liked Videos"} />
+            <ProfileMeanuItem icon={<FaThumbsUp />} text={"Liked Videos"} onClick={()=>navigate("/likedcontent")}/>
             <ProfileMeanuItem icon={<SiYoutubestudio className='text-xl text-orange-400' />} text={"PT Studio"} />
         </div>
 

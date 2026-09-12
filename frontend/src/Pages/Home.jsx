@@ -111,7 +111,7 @@ function Home() {
           <SidebarItem icon={<GoVideo/>} text={"Saved Videos"} open={sidebarOpen} selected={selectedItem ==="Saved Videos"} 
           onClick={()=>setSelectedItem("Saved Videos")}/>
           <SidebarItem icon={<FaThumbsUp/>} text={"Liked Videos"} open={sidebarOpen} selected={selectedItem ==="liked Videos"} 
-          onClick={()=>setSelectedItem("Liked Videos")}/>
+          onClick={()=>{setSelectedItem("Liked Videos");navigate("/likedcontent")}}/>
 
         </nav>
 
