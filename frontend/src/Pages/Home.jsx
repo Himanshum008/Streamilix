@@ -109,7 +109,7 @@ function Home() {
           <SidebarItem icon={<FaList/>} text={"Playlists"} open={sidebarOpen} selected={selectedItem ==="Playlists"} 
           onClick={()=>setSelectedItem("Playlists")}/>
           <SidebarItem icon={<GoVideo/>} text={"Saved Videos"} open={sidebarOpen} selected={selectedItem ==="Saved Videos"} 
-          onClick={()=>setSelectedItem("Saved Videos")}/>
+          onClick={()=>{setSelectedItem("Saved Videos");navigate("/savedcontent")}}/>
           <SidebarItem icon={<FaThumbsUp/>} text={"Liked Videos"} open={sidebarOpen} selected={selectedItem ==="liked Videos"} 
           onClick={()=>{setSelectedItem("Liked Videos");navigate("/likedcontent")}}/>
 

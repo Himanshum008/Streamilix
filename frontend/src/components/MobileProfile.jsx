@@ -90,7 +90,7 @@ function MobileProfile() {
         <div className='flex flex-col mt-5'>
             <ProfileMeanuItem icon={<FaHistory />} text={"History"} />
             <ProfileMeanuItem icon={<FaList />} text={"Playlists"} />
-            <ProfileMeanuItem icon={<GoVideo />} text={"Save Videos"} />
+            <ProfileMeanuItem icon={<GoVideo />} text={"Save Videos"} onClick={()=>navigate("/savedcontent")}/>
             <ProfileMeanuItem icon={<FaThumbsUp />} text={"Liked Videos"} onClick={()=>navigate("/likedcontent")}/>
             <ProfileMeanuItem icon={<SiYoutubestudio className='text-xl text-orange-400' />} text={"PT Studio"} />
         </div>

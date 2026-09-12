@@ -222,3 +222,20 @@ export const getLikedVideos = async (req, res) => {
         return res.status(500).json({message: `Error to find liked videos ${error}`})
     }
 }
+
+export const getSavedVideos = async (req,res) => {
+    try {
+        const userId = req.userId
+
+        const savedVideo = await Video.find({saveBy : userId})
+        .populate("channel", "name avatar")
+        .populate("likes", "username")
+
+        if (!savedVideo) {
+            return res.status(400).json({message: "Failed to get saved videos"})
+        }
+        return res.status(200).json(savedVideo)
+    } catch (error) {
+        return res.status(500).json({message: `Error to find saved videos ${error}`})
+    }
+}

@@ -7,6 +7,7 @@ import {
     createVideo, 
     getAllVideos, 
     getLikedVideos, 
+    getSavedVideos, 
     getViews, 
     toggleDislikes, 
     toggleLikes, 
@@ -18,6 +19,7 @@ import {
     CreateShort, 
     getAllShorts, 
     getLikedShort, 
+    getSavedShort, 
     getViews1, 
     toggleDislikes1, 
     toggleLikes1, 
@@ -45,6 +47,7 @@ contentRouter.put("/video/:videoId/add-view" , getViews)
 contentRouter.post("/video/:videoId/add-comment" , isAuth , addComment)
 contentRouter.post("/video/:videoId/:commentId/add-reply" , isAuth , addReply)
 contentRouter.get("/likedvideo" , isAuth , getLikedVideos)
+contentRouter.get("/savedvideo" , isAuth , getSavedVideos)
 
 //Short Routes
 contentRouter.post("/create-short" , isAuth , upload.single("shortUrl"), CreateShort)
@@ -59,6 +62,7 @@ contentRouter.put("/short/:shortId/add-view" , getViews1)
 contentRouter.post("/short/:shortId/add-comment" , isAuth , addComment1)
 contentRouter.post("/short/:shortId/:commentId/add-reply" , isAuth , addReply1)
 contentRouter.get("/likedshort" , isAuth , getLikedShort)
+contentRouter.get("/savedshort" , isAuth , getSavedShort)
 
 // Playlist routes
 

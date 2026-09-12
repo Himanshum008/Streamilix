@@ -21,33 +21,33 @@ const getVideoDuration = (url, callback) => {
     };
 };
 
-function LikedContent() {
-    const [likedVideo, setLikedVideo] = useState([])
-    const [likedShort, setLikedShort] = useState([])
+function SavedContent() {
+    const [savedVideo, setSavedVideo] = useState([])
+    const [savedShort, setSavedShort] = useState([])
     const [duration, setDuration] = useState("")
 
     useEffect((
             ()=>{
-                if(Array.isArray(likedVideo) && likedVideo.length > 0) {
-                    likedVideo.forEach((videos)=>{
+                if(Array.isArray(savedVideo) && savedVideo.length > 0) {
+                    savedVideo.forEach((videos)=>{
                       getVideoDuration(videos.videoUrl , (formattedTime)=>{
                         setDuration((prev)=>({...prev , [videos._id] : formattedTime}))
                       })  
                     }) 
                 }
             }
-        ),[likedVideo])
+        ),[savedVideo])
 
     useEffect(()=>{
 
-        const fetchLikedContent = async () => {
+        const fetchSavedContent = async () => {
             try {
-                const result = await axios.get(serverUrl + "/api/content/likedvideo" , {withCredentials:true})
-                setLikedVideo(result.data)
+                const result = await axios.get(serverUrl + "/api/content/savedvideo" , {withCredentials:true})
+                setSavedVideo(result.data)
                 console.log(result.data);
                 
-                const result1 = await axios.get(serverUrl + "/api/content/likedshort" , {withCredentials:true})
-                setLikedShort(result1.data)
+                const result1 = await axios.get(serverUrl + "/api/content/savedshort" , {withCredentials:true})
+                setSavedShort(result1.data)
                 console.log(result1.data);
             } catch (error) {
                 console.log(error);
@@ -55,7 +55,7 @@ function LikedContent() {
             }
         }
 
-        fetchLikedContent()
+        fetchSavedContent()
     },[])
 
     
@@ -63,13 +63,13 @@ function LikedContent() {
   return (
     <div className='px-6 py-4 min-h-screen mt-12.5 lg:mt-5'>
 
-        {likedShort.length > 0 && (
+        {savedShort.length > 0 && (
             <>
             <h2 className='text-2xl font-bold mb-6 pt-12.5 border-b border-gray-300 pb-2 flex items-center gap-1'>
-                <SiYoutubeshorts className='w-7 h-7 text-orange-600'/>Liked Shorts
+                <SiYoutubeshorts className='w-7 h-7 text-orange-600'/>Saved Shorts
             </h2>
             <div className='flex gap-4 overflow-x-auto pb-4 scrollbar-hide'>
-                {likedShort?.map((short)=>(
+                {savedShort?.map((short)=>(
                     <div key={short?._id} className='shrink-0'>
                         <ShortCard
                         shortUrl={short?.shortUrl}
@@ -85,13 +85,13 @@ function LikedContent() {
             </>
         )}
 
-        {likedVideo.length > 0 && (
+        {savedVideo.length > 0 && (
             <>
             <h2 className='text-2xl font-bold mb-6 pt-12.5 border-b border-gray-300 pb-2 flex items-center gap-1'>
                 <GoVideo className='w-7 h-7 text-orange-600'/>Liked Videos
             </h2>
             <div className='flex gap-4 overflow-x-auto pb-4 scrollbar-hide'>
-                {likedVideo?.map((video)=>(
+                {savedVideo?.map((video)=>(
                     <div key={video?._id} className='shrink-0'>
                         <VideoCard
                         thumbnail={video.thumbnail}
@@ -112,4 +112,4 @@ function LikedContent() {
   )
 }
 
-export default LikedContent
+export default SavedContent

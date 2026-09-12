@@ -207,3 +207,20 @@ export const getLikedShort = async (req, res) => {
         return res.status(500).json({message: `Error to find liked shorts ${error}`})
     }
 }
+
+export const getSavedShort = async (req, res) => {
+    try {
+        const userId = req.userId
+
+        const savedShort = await Short.find({saveBy : userId})
+        .populate("channel", "name avatar")
+        .populate("likes", "username")
+
+        if (!savedShort) {
+            return res.status(400).json({message: "Failed to get saved shorts"})
+        }
+        return res.status(200).json(savedShort)
+    } catch (error) {
+        return res.status(500).json({message: `Error to find liked saved ${error}`})
+    }
+}
