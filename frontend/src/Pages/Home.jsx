@@ -32,6 +32,7 @@ function Home() {
   const {userData} = useSelector((state)=>state.user)
   const [popUp, setPopUp] = useState(false)
   const location = useLocation()
+  const isShortsPage = location.pathname.startsWith('/shorts') || location.pathname.startsWith('/playshort')
 
   const categories = [
     "Music", "Gaming", "Movies", "TV Shows", "News", "Trending", "Entertainment", "Education", "Science & Tech", "Travel",
@@ -56,7 +57,7 @@ function Home() {
           </div>
 
           {/* search */}
-          <div className='hidden md:flex items-center gap-2 flex-1 max-w-xl'>
+          {!isShortsPage && <div className='hidden md:flex items-center gap-2 flex-1 max-w-xl'>
             <div className='flex flex-1'>
               <input type="text" className='bg-[#121212] px-4 py-2 rounded-1-full outline-none border border-gray-700' 
               placeholder='Search'/>
@@ -68,7 +69,7 @@ function Home() {
               
             </div>
             
-          </div>
+          </div>}
 
           {/* right */}
           <div className='flex items-center gap-3'>
@@ -81,7 +82,7 @@ function Home() {
             onClick={()=>setPopUp(prev=>!prev)}/>
             :<img src={userData?.photoUrl} className='w-9 h-9 rounded-full object-cover border
             border-gray-700 hidden md:flex' onClick={()=>setPopUp(prev=>!prev)}/>}
-            <FaSearch className='text-lg md:hidden flex'/>
+            {!isShortsPage && <FaSearch className='text-lg md:hidden flex'/>}
           </div>
         </div>
       </header>

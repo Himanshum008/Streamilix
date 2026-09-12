@@ -21,6 +21,7 @@ import CreatePosts from './Pages/Post/CreatePosts.jsx'
 import GetAllContentData from './customHooks/GetAllContentData.jsx'
 import PlayVideo from './Pages/Videos/PlayVideo.jsx'
 import PlayShort from './Pages/Shorts/PlayShort.jsx'
+import ChannelPage from './Pages/Channel/ChannelPage.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -44,16 +45,17 @@ function App() {
     <CustomAlert />
   <Routes>
   <Route path='/' element={<Home />} >
+    <Route path='/shorts' element={<ProtectRoute userData={userData}><Shorts /></ProtectRoute>} />
+    <Route path='/playshort/:shortId' element={<ProtectRoute userData={userData}><PlayShort /></ProtectRoute>} />
     <Route path='/mobileprofile' element={<ProtectRoute userData={userData}><MobileProfile /></ProtectRoute>} />
     <Route path='/viewchannel' element={<ProtectRoute userData={userData}><ViewChannel /></ProtectRoute>} />
-    <Route path='/shorts' element={<ProtectRoute userData={userData}><PlayShort /></ProtectRoute>} />
-    <Route path='/playshort/:shortId' element={<ProtectRoute userData={userData}><Shorts /></ProtectRoute>} />
     <Route path='/updatechannel' element={<ProtectRoute userData={userData}><UpdateChannel /></ProtectRoute>} />
      <Route path='/create' element={<ProtectRoute userData={userData}><CreatePage /></ProtectRoute>} />
     <Route path='/createvideo' element={<ProtectRoute userData={userData}><CreateVideos /></ProtectRoute>} />
     <Route path='/createshort' element={<ProtectRoute userData={userData}><CreateShorts /></ProtectRoute>} />
     <Route path='/createplaylist' element={<ProtectRoute userData={userData}><CreatePlaylists /></ProtectRoute>} />
     <Route path='/createpost' element={<ProtectRoute userData={userData}><CreatePosts /></ProtectRoute>} />
+    <Route path='/channelpage/:channelId' element={<ProtectRoute userData={userData}><ChannelPage /></ProtectRoute>} />
   </Route>
   <Route path='/signup' element={<SignUp />} />
   <Route path='/signin' element={<SignIn />} />

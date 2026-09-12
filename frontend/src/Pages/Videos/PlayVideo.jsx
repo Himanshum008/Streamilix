@@ -303,9 +303,10 @@ function PlayVideo() {
             <p className='text-sm text-gray-400'>{video?.views} views</p>
             <div className=' mt-2 flex flex-wrap items-center justify-between'>
                 <div className='flex items-center justify-start gap-4'>
-                    <img src={channel?.avatar} alt="" className='w-12 h-12 rounded-full border-2 border-gray-600'/>
+                    <img src={channel?.avatar} alt="" className='w-12 h-12 rounded-full border-2 border-gray-600'
+                    onClick={()=>navigate(`/channelpage/${channel?._id}`)}/>
                     <div>
-                        <h1 className='text-md font-bold'>{channel?.name}</h1>
+                        <h1 className='text-md font-bold' onClick={()=>navigate(`/channelpage/${channel?._id}`)}>{channel?.name}</h1>
                         <h3 className='text-[13px]'>{channel?.subscribers?.length}</h3>
                     </div>
                     <button className={`px-5 py-2 rounded-4xl border border-gray-600 ml-5 text-md 

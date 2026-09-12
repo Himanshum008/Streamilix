@@ -39,7 +39,7 @@ export const createVideo = async (req,res) => {
         })
         await Channel.findByIdAndUpdate(ChannelData._id,
             {$push : {videos : newVideo._id}},
-            {new:true}
+            {returnDocument:"after"}
         )
         return res.status(200).json(newVideo)
 
@@ -127,17 +127,19 @@ export const toggleSave = async (req, res) => {
 
 export const getViews = async (req, res) => {
     try {
-        const {videoId} = req.params;
-        const video = await Video.findByIdAndUpdate(videoId , {
-            $inc : {views : 1}
-        },{new:true})
+        const {videoId} = req.params
+        const video = await Video.findByIdAndUpdate(
+            videoId,
+            { $inc: { views: 1 } },
+            { new: true }
+        )
         if (!video) {
             return res.status(400).json({message:"Video is not found"})
         }
         return res.status(200).json(video)
 
     } catch (error) {
-        return res.status(500).json({message:`Error adding view ${error}`})
+        return res.status(500).json({message:`Error adding view ${error.message}`})
     }
 }
 

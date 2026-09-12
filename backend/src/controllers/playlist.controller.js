@@ -55,7 +55,7 @@ export const toggleSavePlaylist = async (req, res) => {
             playlist.saveBy.push(userId)
         }
         await playlist.save()
-        return res.status(200).json(video)
+        return res.status(200).json(playlist)
     } catch (error) {
         return res.status(500).json({message:`Failed to save video ${error}`})
     }

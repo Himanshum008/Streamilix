@@ -14,12 +14,13 @@ import Description from '../../components/Description.jsx'
 import axios from 'axios'
 import { serverUrl } from '../../App.jsx'
 import { ClipLoader } from 'react-spinners'
+import { useNavigate } from 'react-router-dom'
 
 const IconButton = ({icon:Icon, active, label, count, onClick})=>(
     <button className='flex flex-col items-center' onClick={onClick}>
         <div className={`${active ? "bg-white" : "bg-[#00000065] border border-gray-700"} 
         p-3 rounded-full hover:bg-gray-700 transition`}>
-            <Icon size={20} className={`${active ? "text-black" : "text-white"}`}/>
+            <Icon size={18} className={`${active ? "text-black" : "text-white"}`}/>
             
         </div>
         <span className='text-xs mt-1 flex gap-1'>{count !== undefined && `${count}`} <span>{label}</span></span>
@@ -40,6 +41,7 @@ function Shorts() {
   const [newComment, setNewComment] = useState("")
   const [reply, setReply] = useState(false)
   const [replyText, setReplyText] = useState({})
+  const navigate = useNavigate()
   
 
   useEffect(()=>{
@@ -191,11 +193,11 @@ function Shorts() {
   },[allShortsData])
 
   return (
-    <div className='h-screen w-full overflow-y-scroll snap-y snap-mandatory'>
+    <div className='h-[calc(100vh-3.75rem)] w-full overflow-y-scroll snap-y snap-mandatory'>
       {shortList.map((short , index)=>(
-        <div key={short?._id} className='min-h-screen w-full flex md:items-center items-start justify-center mt-12.5 md:pt-0
-        snap-start pt-10'>
-          <div className='relative w-105 md:w-87.5 aspect-9/16 bg-black rounded-2xl overflow-hidden shadow-xl border 
+        <div key={short?._id} className='min-h-full w-full flex items-start justify-center pt-9
+        snap-start'>
+          <div className='relative h-[calc(100vh-7rem)] md:h-[calc(100vh-6rem)] w-full md:w-auto aspect-9/16 bg-black rounded-2xl overflow-hidden shadow-xl border 
           border-gray-700 cursor-pointer' onClick={()=>togglePlay(index)}>
             <video
             ref={(el)=>(shortRefs.current[index] = el)}
@@ -223,8 +225,10 @@ function Shorts() {
           <div className='absolute bottom-0 left-0 right-0 p-4 bg-linear-to-t from-black/80 
           via-black/40 to-transparent text-white space-y-1'>
             <div className='flex items-center justify-start gap-2'>
-              <img src={short?.channel?.avatar} className='w-8 h-8 rounded-full border border-gray-700' alt="" />
-              <span className='text-sm text-gray-300'>@{short?.channel?.name?.toLowerCase()}</span>
+              <img src={short?.channel?.avatar} className='w-8 h-8 rounded-full border border-gray-700' 
+              onClick={()=>navigate(`/channelpage/${short?.channel?._id}`)}/>
+              <span className='text-sm text-gray-300' onClick={()=>navigate(`/channelpage/${short?.channel?._id}`)}>
+                @{short?.channel?.name?.toLowerCase()}</span>
               <div>
               <button className={`${short?.channel?.subscribers?.includes(userData?._id) ? 
               "bg-[#000000a1] text-white border border-gray-700" : "bg-white text-black"} 
@@ -247,8 +251,8 @@ function Shorts() {
             </div>
             <Description text={short?.description}/>
           </div>
-          <div className='absolute right-3 bottom-28 flex flex-col items-center gap-5 text-white'>
-            <IconButton icon={FaThumbsUp} label={"Likes"}
+          <div className='absolute right-3 bottom-28 flex flex-col items-center gap-2 text-white'>
+            <IconButton icon={FaThumbsUp} label={"Likes"} 
             active={short?.likes?.includes(userData._id)} count={short?.likes?.length} onClick={()=>toggleLike(short?._id)}/>
             <IconButton icon={FaThumbsDown} label={"Dislikes"}
             active={short?.dislikes?.includes(userData._id)} count={short?.dislikes?.length} onClick={()=>toggleDislike(short?._id)}/>

@@ -69,7 +69,7 @@ export const addCommentForPost = async (req, res) => {
         const {message} = req.body
         const userId = req.userId
 
-        const post = await post.findById(post)
+        const post = await Post.findById(postId)
         if (!post) {
             return res.status(400).json({message:"Post is not found"})
         }

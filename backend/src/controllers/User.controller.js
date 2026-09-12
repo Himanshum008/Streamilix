@@ -98,8 +98,8 @@ export const updateChannel = async (req, res) => {
 
         await User.findByIdAndUpdate(userId, {
             username:name || undefined,
-            photoUrl: channel.avatar || indefined
-        },{new:true})
+            photoUrl: channel.avatar || undefined
+        },{returnDocument:"after"})
 
         return res.status(200).json(updatedChannel)
 
@@ -161,22 +161,31 @@ export const getAllChannelData = async (req, res) => {
         .populate("subscribers")
         .populate({
             path: "communityPosts",
-            populate: {
+            populate: [
+            {
                 path: "channel",
-                model: "channel",
+                model: "Channel",
             },
+            {
+                path: "comments.author",
+                model: "User",
+                select:  "username photoUrl"
+            },
+            {
+                path: "comments.replies.author",
+                model: "User",
+                select: "username photoUrl"
+            },
+        ],
         })
-        .populate({
-            path:"playlists", 
-            populate:{
-                path:"videos",
-                model: "video",
+        .populate("playlists")
+            .populate({
+                path: "playlists",
                 populate: {
-                    path: "channel",
-                    model: "channel",
-                }
-            }
-        })
+                    path: "videos",
+                    model: "Video",
+                },
+            })
 
         if (!channels) {
             return res.status(400).json({message:"Channels are not found"})

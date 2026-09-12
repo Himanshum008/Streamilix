@@ -5,7 +5,7 @@ function ShortCard({shortUrl, title, channelName, avatar, views, id}) {
     const navigate = useNavigate()
   return (
     <div className='w-45 sm:w-48 cursor-pointer relative' onClick={()=>navigate(`/playshort/${id}`)}>
-        <div className='rounded-xl overflow-hidden bg-black w-full h-70 border border-gray-700'>
+        <div className='rounded-xl overflow-hidden bg-black w-full h-80 border border-gray-700'>
             <video src={shortUrl} className='w-full h-full object-cover' muted playsInline onContextMenu={(e)=>e.preventDefault()} 
                 preload='metadata'/>
         </div>

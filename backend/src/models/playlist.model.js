@@ -44,10 +44,10 @@ const playlistSchema = new mongoose.Schema(
             type:String,
             default:""
         },
-        channel: {
+        videos: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Video"
-                },
+        }], 
         saveBy:[{
             type:mongoose.Schema.Types.ObjectId,
             ref:"User",

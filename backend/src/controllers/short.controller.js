@@ -28,7 +28,7 @@ export const CreateShort = async (req , res) => {
 
         await Channel.findByIdAndUpdate(ChannelData._id,{
             $push : {shorts : newShort._id}
-        },{new:true})
+        },{returnDocument:"after"})
 
         return res.status(200).json(newShort)
     } catch (error) {
@@ -125,7 +125,7 @@ export const getViews1 = async (req, res) => {
         const {shortId} = req.params;
         const short = await Short.findByIdAndUpdate(shortId , {
             $inc : {views : 1}
-        },{new:true})
+        },{returnDocument:"after"})
         if (!short) {
             return res.status(400).json({message:"Short is not found"})
         }

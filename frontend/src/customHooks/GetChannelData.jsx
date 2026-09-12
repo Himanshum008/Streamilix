@@ -26,7 +26,7 @@ function GetChannelData() {
     useEffect(()=>{
         const fetchAllChannel = async () => {
             try {
-                const result = await axios.get(serverUrl + "/api/user/allchannel", {
+                const result = await axios.get(serverUrl + "/api/user/allchanneldata", {
                     withCredentials: true
                 })
                 dispatch(setAllChannelData(result.data))
