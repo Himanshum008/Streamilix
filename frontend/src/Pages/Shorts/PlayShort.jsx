@@ -15,10 +15,6 @@ import Description from '../../components/Description.jsx'
 import axios from 'axios'
 import { serverUrl } from '../../App.jsx'
 import { ClipLoader } from 'react-spinners'
-import {
-  setAllShortsData,
-  setAllVideosData
-} from "../../redux/contentSlice.js";
 
 const IconButton = ({icon:Icon, active, label, count, onClick})=>(
     <button className='flex flex-col items-center' onClick={onClick}>
@@ -31,9 +27,8 @@ const IconButton = ({icon:Icon, active, label, count, onClick})=>(
 )
 
 function PlayShort() {
-  const dispatch = useDispatch();
-  const {shortId} = useParams()
-  const {allShortsData, allVideosData} = useSelector(state=>state.content)
+const {shortId} = useParams()
+  const {allShortsData} = useSelector(state=>state.content)
   const selectedShort = allShortsData?.find((s)=>s._id === shortId)
   const {userData} = useSelector(state=>state.user)
   const navigate = useNavigate()
@@ -114,7 +109,6 @@ function PlayShort() {
   }
 
   const handleSubscribe = async (channelId) => {
-    if (!channelId) return;
     setLoading(true)
     try {
       const result = await axios.post(serverUrl + "/api/user/togglesubscribe" , {channelId} , {withCredentials:true})
@@ -124,26 +118,6 @@ function PlayShort() {
       
       const updatedChannel = result.data
       setShortList((prev)=>prev.map((short)=>short?.channel?._id === channelId ? {...short , channel :updatedChannel} : short))
-      dispatch(
-      setAllVideosData(
-        allVideosData?.map(video =>
-          video?.channel?._id === channelId
-            ? { ...video, channel: updatedChannel }
-            : video
-        )
-      )
-    );
-
-    dispatch(
-      setAllShortsData(
-        allShortsData?.map(short =>
-          short?.channel?._id === channelId
-            ? { ...short, channel: updatedChannel }
-            : short
-        )
-      )
-    );
-
     } catch (error) {
       console.log(error);
       
@@ -270,18 +244,13 @@ function PlayShort() {
               onClick={()=>navigate(`/channelpage/${short?.channel?._id}`)}/>
               <span className='text-sm text-gray-300' onClick={()=>navigate(`/channelpage/${short?.channel?._id}`)}>
                 @{short?.channel?.name?.toLowerCase()}</span>
-              <button className={`${short?.channel?.subscribers?.some(userData?._id) ? 
+              <div>
+              <button className={`${short?.channel?.subscribers?.includes(userData?._id) ? 
               "bg-[#000000a1] text-white border border-gray-700" : "bg-white text-black"} 
               text-xs px-2.5 py-2.5 rounded-full cursor-pointer`}
               onClick={()=>handleSubscribe(short?.channel?._id)} disabled={loading}>
                 {loading ? <ClipLoader size={20} color='gray'/> : 
-                short?.channel?.subscribers?.some(
-                  sub =>
-                    sub?._id?.toString() === userData?._id?.toString() ||
-                    sub?.toString() === userData?._id?.toString()
-                )
-                  ? "Subscribed"
-                  : "Subscribe"}</button>
+                short?.channel?.subscribers?.includes(userData?._id)?"Subscribe" : "Subscribed"}</button></div>
             </div>
             <div className='flex items-center justify-start'>
               <h3 className='font-bold text-lg line-clamp-2'>{short?.title}</h3>

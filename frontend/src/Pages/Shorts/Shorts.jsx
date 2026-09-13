@@ -197,8 +197,8 @@ function Shorts() {
       {shortList.map((short , index)=>(
         <div key={short?._id} className='min-h-full w-full flex items-start justify-center pt-9
         snap-start'>
-          <div className='relative h-[calc(100vh-7rem)] md:h-[calc(100vh-6rem)] w-full md:w-auto aspect-9/16 
-          bg-black rounded-2xl overflow-hidden shadow-xl border border-gray-700 cursor-pointer' onClick={()=>togglePlay(index)}>
+          <div className='relative h-[calc(100vh-7rem)] md:h-[calc(100vh-6rem)] w-full md:w-auto aspect-9/16 bg-black rounded-2xl overflow-hidden shadow-xl border 
+          border-gray-700 cursor-pointer' onClick={()=>togglePlay(index)}>
             <video
             ref={(el)=>(shortRefs.current[index] = el)}
             data-index = {index}
@@ -229,14 +229,13 @@ function Shorts() {
               onClick={()=>navigate(`/channelpage/${short?.channel?._id}`)}/>
               <span className='text-sm text-gray-300' onClick={()=>navigate(`/channelpage/${short?.channel?._id}`)}>
                 @{short?.channel?.name?.toLowerCase()}</span>
-              
-              <button className={`${
-                short?.channel?.subscribers?.includes(userData?._id) ? 
+              <div>
+              <button className={`${short?.channel?.subscribers?.includes(userData?._id) ? 
               "bg-[#000000a1] text-white border border-gray-700" : "bg-white text-black"} 
               text-xs px-2.5 py-2.5 rounded-full cursor-pointer`}
               onClick={()=>handleSubscribe(short?.channel?._id)} disabled={loading}>
                 {loading ? <ClipLoader size={20} color='gray'/> : 
-                short?.channel?.subscribers?.includes(userData?._id)?"Subscribe" : "Subscribed"}</button>
+                short?.channel?.subscribers?.includes(userData?._id)?"Subscribed" : "Subscribe"}</button></div>
             </div>
             <div className='flex items-center justify-start'>
               <h3 className='font-bold text-lg line-clamp-2'>{short?.title}</h3>

@@ -11,7 +11,7 @@ import ShortCard from '../../components/ShortCard.jsx'
 import Description from '../../components/Description.jsx'
 import { serverUrl } from '../../App.jsx'
 import { ClipLoader } from 'react-spinners'
-import { setAllVideosData } from "../../redux/contentSlice.js";
+import { setAllVideosData } from '../../redux/contentSlice.js'
 
 const IconButton = ({icon:Icon, active, label, count, onClick})=>(
     <button className='flex flex-col items-center' onClick={onClick}>
@@ -45,9 +45,8 @@ function PlayVideo() {
     const [comment, setComment] = useState([])
     const [newComment, setNewComment] = useState([])
     const dispatch = useDispatch()
-    // const [isSubscribed, setIsSubscribed] = useState(channel?.subscribers?.some((sub)=>sub?._id?.toString() 
-    //     === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
-    const [isSubscribed, setIsSubscribed] = useState(false);
+    const [isSubscribed, setIsSubscribed] = useState(channel?.subscribers?.some((sub)=>sub?._id?.toString() 
+        === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
 
     const {allVideosData, allShortsData} = useSelector(state=>state.content)
 
@@ -238,15 +237,9 @@ function PlayVideo() {
         }
     }
     
-    useEffect(()=>{
-        const subscribed = channel?.subscribers?.some(
-            sub =>
-                sub?._id?.toString() === userData?._id?.toString() ||
-                sub?.toString() === userData?._id?.toString()
-            );
-
-  setIsSubscribed(!!subscribed);
-}, [channel?.subscribers, userData?._id]);
+    useEffect(()=>{setIsSubscribed(channel?.subscribers?.some((sub)=>sub._id?.toString() 
+        === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
+    }),[channel?.subscribers , userData?._id]
 
   return (
     <div className='flex bg-[#0f0f0f] text-white flex-col lg:flex-row gap-6 p-4 lg:p-6'>
