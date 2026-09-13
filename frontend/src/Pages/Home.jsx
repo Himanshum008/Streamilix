@@ -42,6 +42,8 @@ function Home() {
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [searchData, setSearchData] = useState("")
+  const [loading1, setLoading1] = useState(false)
+  const [filterData, setFilterData] = useState("")
 
 
   function speak(message) {
@@ -133,6 +135,52 @@ function Home() {
     "Music", "Gaming", "Movies", "TV Shows", "News", "Trending", "Entertainment", "Education", "Science & Tech", "Travel",
     "Fashion", "Cooking", "Sports", "Pets", "Art", "Comedy", "Vlogs",
   ];
+
+  const handleCategoryFilter = async (category) => {
+    setLoading1(true)
+    try {
+      const result = await axios.post(serverUrl + "/api/content/filter" , {input: category} , {withCredentials:true})
+
+      const {videos = [], shorts=[], channels = []} = result.data
+
+      let channelVideos = [];
+      let channelShorts = [];
+      channels.forEach((ch) =>{
+        if(ch.videos?.length) channelVideos.push(...ch.videos);
+        if(ch.shorts?.length) channelShorts.push(...ch.shorts);
+      })
+
+      setFilterData({
+        ...result.data,
+        videos: [...videos, ...channelVideos],
+        shorts: [...shorts, ...channelShorts]
+      })
+      setLoading1(false)
+      navigate("/")
+      
+      console.log("Category filter merged:", {
+        ...result.data,
+        videos: [...videos, ...channelVideos],
+        shorts: [...shorts, ...channelShorts]
+      });
+
+      if(
+        videos.length > 0 ||
+        shorts.length > 0 ||
+        channelVideos.length > 0 ||
+        channelShorts.length > 0
+      ) {
+        speak(`Here are some ${category} videos and shorts for you`)
+      }else {
+        speak("No results found")
+      }
+      
+    } catch (error) {
+      console.error("Category filter error", error)
+      setLoading1(false);
+      
+    }
+  }
 
   return (
     <div className='bg-[#0f0f0f] text-white min-h-screen relative'>
@@ -281,13 +329,17 @@ function Home() {
             <div className='flex items-center gap-3 overflow-x-auto scrollbar-hide scroll-smooth pt-2 mt-15'>
             {categories.map((cat,idx)=>(
               <button key={idx} className='whitespace-nowrap bg-[#272727] px-4 py-1 rounded-lg text-sm
-              hover:bg-gray-700'>
+              hover:bg-gray-700' onClick={()=>handleCategoryFilter(cat)}>
                 {cat}
               </button>
             ))}
           </div>
           <div className='mt-3'>
+            {loading1 && <div className='w-full items-center flex justify-center'>
+            {loading1?<ClipLoader size={35} color='white'/>:""}</div>}
+      
             {searchData && <SearchResults searchResults={searchData}/>}
+            {filterData && <filterResults filterResults={filterData}/>}
             <AllVideosPage/>
             <AllShortsPage/>
           </div>

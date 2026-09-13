@@ -27,7 +27,7 @@ import {
 } from '../controllers/short.controller.js'
 import { CreatePlaylist, getSavedPlaylist, toggleSavePlaylist } from '../controllers/playlist.controller.js'
 import { addCommentForPost, addReplyForPost, createPost, getAllPosts, toggleLikesForPost } from '../controllers/post.controller.js'
-import { searchWithAi } from '../controllers/ai.controller.js'
+import { filterCategoryWithAi, searchWithAi } from '../controllers/ai.controller.js'
 
 
 const contentRouter = express.Router()
@@ -82,5 +82,6 @@ contentRouter.post("/post/add-reply" , isAuth , addReplyForPost)
 //ai routes
 
 contentRouter.post("/search" , isAuth , searchWithAi)
+contentRouter.post("/filter" , isAuth , filterCategoryWithAi)
 
 export default contentRouter;

@@ -175,3 +175,37 @@ Your job:
         });
     }
 };
+
+
+export const filterCategoryWithAi = async (req,res) => {
+    try {
+    const {input} = req.body
+    if (!input || !input.trim()) {
+      return res.status(400).json({message: "Category is required"})
+    }
+
+    const escapedCategory = input.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    const channels = await Channel.find({
+      category: {$regex: escapedCategory, $options: "i"}
+    })
+
+    const channelIds = channels.map((channel) => channel._id)
+    const videos = await Video.find({channel: {$in: channelIds}})
+      .populate("channel comments.author comments.replies.author")
+    const shorts = await Short.find({channel: {$in: channelIds}})
+      .populate("channel", "name avatar")
+        .populate({
+      path: "likes",
+      select: "username photoUrl"
+    })
+    const playlists = await Playlist.find({channel: {$in: channelIds}})
+      .populate("channel", "name avatar")
+      .populate({path: "videos", populate: {path: "channel", select: "name avatar"}})
+
+    return res.status(200).json({videos, shorts, channels, playlists, keywords: [input.trim()]})
+
+    } catch (error) {
+        console.error("Filter error:", error);
+        return res.status(500).json({message: `FAiled to filter: ${error.message}`})
+    }
+}
