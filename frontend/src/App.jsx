@@ -1,5 +1,5 @@
 import { Children, useState } from 'react'
-import { Routes,Route, Navigate } from 'react-router-dom'
+import { Routes,Route, Navigate, useLocation } from 'react-router-dom'
 import Home from './Pages/Home.jsx'
 import SignIn from './Pages/SignIn.jsx'
 import SignUp from './Pages/SignUp.jsx'
@@ -45,6 +45,10 @@ function App() {
   GetSubscribedData()
 
   const {userData} = useSelector(state => state.user)
+  function ChannelPageWrapper() {
+    const location = useLocation()
+    return <ChannelPage key={location.pathname}/>
+  }
 
   return (
     <>
@@ -61,7 +65,9 @@ function App() {
     <Route path='/createshort' element={<ProtectRoute userData={userData}><CreateShorts /></ProtectRoute>} />
     <Route path='/createplaylist' element={<ProtectRoute userData={userData}><CreatePlaylists /></ProtectRoute>} />
     <Route path='/createpost' element={<ProtectRoute userData={userData}><CreatePosts /></ProtectRoute>} />
-    <Route path='/channelpage/:channelId' element={<ProtectRoute userData={userData}><ChannelPage /></ProtectRoute>} />
+
+    <Route path='/channelpage/:channelId' element={<ProtectRoute userData={userData}><ChannelPageWrapper /></ProtectRoute>} />
+
     <Route path='/likedcontent' element={<ProtectRoute userData={userData}><LikedContent /></ProtectRoute>} />
     <Route path='/savedcontent' element={<ProtectRoute userData={userData}><SavedContent /></ProtectRoute>} />
     <Route path='/savedplaylist' element={<ProtectRoute userData={userData}><SavedPlaylist /></ProtectRoute>} />

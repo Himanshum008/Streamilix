@@ -29,7 +29,7 @@ function Home() {
   const [selectedItem, setSelectedItem] = useState("Home")
   const [active, setActive] = useState("Home")
   const navigate = useNavigate()
-  const {userData} = useSelector((state)=>state.user)
+  const {userData, subscribedChannels} = useSelector((state)=>state.user)
   const [popUp, setPopUp] = useState(false)
   const location = useLocation()
   const isShortsPage = location.pathname.startsWith('/shorts') || location.pathname.startsWith('/playshort')
@@ -117,6 +117,18 @@ function Home() {
 
         <hr className='border-gray-800 my-3'/>
         {sidebarOpen && <p className='text-sm text-gray-400 px-2'>Subcriptions</p>}
+
+        <div className='space-y-1 mt-1'>
+          {subscribedChannels?.map((ch)=>(
+            <button key={ch?._id} onClick={()=>{setSelectedItem(ch?._id);navigate(`/channelpage/${ch?._id}`)}} 
+            className={`flex items-center ${sidebarOpen ? "gap-3 justify-start" : "justify-center"} w-full text-left 
+            cursor-pointer p-2 rounded-lg transition-5 ${selectedItem ===ch._id ? "bg-[#272727]" : "hover:bg-gray-800"}`}>
+              <img src={ch?.avatar} alt="" className='w-6 h-6 object-cover rounded-full border border-gray-700 
+              hover:scale-110 transition-transform duration-200'/>
+              {sidebarOpen && <span className='text-sm text-white truncate'>{ch?.name}</span>}
+              </button>
+          ))}
+        </div>
 
       </aside>
 
