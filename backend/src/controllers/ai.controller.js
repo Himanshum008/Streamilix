@@ -1,70 +1,177 @@
-import { GoogleGenAI } from "@google/genai";
-import dotenv from 'dotenv'
-import Video from "../models/video.model";
-import Channel from "../models/channel.model";
-import Short from "../models/short.model";
+import {GoogleGenAI} from "@google/genai"
+import dotenv from "dotenv";
 
-dotenv.config()
+import Video from "../models/video.model.js";
+import Channel from "../models/channel.model.js";
+import Short from "../models/short.model.js";
+import Playlist from "../models/playlist.model.js";
+
+dotenv.config();
 
 export const searchWithAi = async (req, res) => {
-   try {
-    const {input} = req.body
-    if (!input) {
-        return res.status(400).json({message: "Search query is required"})
-    }
+    try {
+        const { input } = req.body;
 
-    const ai = new GoogleGenAI({
-        apiKey: process.env.GEMINI_API_KEY  ,
-    });
-
-    const prompt = `You are a search assistant for a video streaming platform. The user query is: "${input}"
-    Your job:
-    - If query has typos, correct them.
-    - If query has multiple words, break them into meaningful keywords.
-    - Return only the corrected word(s), comma-separated.
-    - Do not explain, only return keyword(s).`;
-
-    const response = await ai.models.generateContent({
-        model: "gemini-3.8-flash",
-        contents:prompt,
-    })
-
-    let keyword = (response.text || input).trim().replace(/[\n\r]+/g,"");
-
-    const searchWords = keyword.split(",").map((w)=> w.trim()).filter(Boolean);
-
-    const buildRegexQuery = (fields) => {
-        return {
-            $or: searchWords.map((word) => ({
-                $or: fields.map((field) => ({
-                    [field]: {$regex: word, $options:  "i"},
-                }))
-            }))
+        if (!input || !input.trim()) {
+            return res.status(400).json({
+                message: "Search query is required"
+            });
         }
-    }
 
-    const matchedChannels = await Channel.find(
-        buildRegexQuery(["name"])
-    ).select("_id name avatar");
+        const ai = new GoogleGenAI({
+            apiKey: process.env.GEMINI_API_KEY
+        });
 
-    const channelIds = matchedChannels.map((c)=>c._id)
+        const prompt = `
+You are a search assistant for a video streaming platform.
 
+The user query is:
+"${input}"
+
+Your job:
+- Correct any spelling mistakes.
+- If the query contains multiple words, identify meaningful search keywords.
+- Return only the corrected keywords.
+- Separate multiple keywords with commas.
+- Do not explain anything.
+`;
+
+        const response = await ai.models.generateContent({
+            model: "gemini-3.6-flash",
+            contents: prompt
+        });
+
+        const keyword = (response.text || input)
+            .trim()
+            .replace(/[\n\r]+/g,"");
+
+        const searchWords = keyword
+            .split(",")
+            .map((word) => word.trim())
+            .filter(Boolean);
+
+        const buildRegexQuery = (fields) => ({
+            $or: searchWords.flatMap((word) =>
+                fields.map((field) => ({
+                    [field]: {
+                        $regex: word,
+                        $options: "i"
+                    }
+                }))
+            )
+        });
+
+        // Search channels
+        const matchedChannels = await Channel.find({
+            name: {
+                $regex: keyword,
+                $options: "i"
+            }
+            }).select("_id name avatar");
+
+        const channelIds = matchedChannels.map(
+            (channel) => channel._id
+        );
+
+        // Search videos
     const videos = await Video.find({
-        $or: [
-        buildRegexQuery(["title", "description", "tags"]),
-        {channel: {$in: channelIds}},
-        ],
-    }).populate("channel comments.author comments.replies.author");
+      $or: [
+        {
+          title: {
+            $regex: keyword,
+            $options: "i"
+          }
+        },
+        {
+          description: {
+            $regex: keyword,
+            $options: "i"
+          }
+        },
+        {
+          tags: {
+            $regex: keyword,
+            $options: "i"
+          }
+        },
+        {
+          channel: {
+            $in: channelIds
+          }
+        }
+      ]
+    }).populate("channel");
 
+    // Search shorts
     const shorts = await Short.find({
-        $or: [
-            buildRegexQuery(["title", "tags"]),
-            {channel: {$in: channelIds}}
-        ],
+      $or: [
+        {
+          title: {
+            $regex: keyword,
+            $options: "i"
+          }
+        },
+        {
+          tags: {
+            $regex: keyword,
+            $options: "i"
+          }
+        },
+        {
+          channel: {
+            $in: channelIds
+          }
+        }
+      ]
     })
     .populate("channel", "name avatar")
+    .populate("likes", "username photoUrl");
 
-   } catch (error) {
-    
-   } 
-}
+    // Search playlists
+    const playlists = await Playlist.find({
+      $or: [
+        {
+          title: {
+            $regex: keyword,
+            $options: "i"
+          }
+        },
+        {
+          description: {
+            $regex: keyword,
+            $options: "i"
+          }
+        },
+        {
+          channel: {
+            $in: channelIds
+          }
+        }
+      ]
+    })
+    .populate("channel", "name avatar")
+    .populate({
+      path: "videos",
+      populate: {
+        path: "channel",
+        select: "name avatar"
+      }
+    });
+
+    return res.status(200).json({
+      keyword,
+      channels: matchedChannels,
+      videos,
+      shorts,
+      playlists
+    });
+
+    } catch (error) {
+        console.error("AI Search Error:", error);
+
+        return res.status(500).json({
+            message: "Failed to search",
+            error: error.message
+        });
+    }
+};
