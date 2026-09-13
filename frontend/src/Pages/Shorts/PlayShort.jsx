@@ -207,6 +207,22 @@ const {shortId} = useParams()
         }
   }
 
+  useEffect(()=>{
+          const addHistory = async () => {
+              try {
+                  const res = await axios.post(`${serverUrl}/api/user/add-history` , {contentId: shortId, contentType: "Short"} ,
+                      {withCredentials:true}
+                  )
+                  console.log(res.data);
+                  
+              } catch (error) {
+                  console.error("Error adding short history", error)
+              }
+          }
+  
+          if (shortId) addHistory();
+      },[shortId])
+
   return (
     <div className='h-[calc(100vh-3.75rem)] w-full overflow-y-scroll snap-y snap-mandatory'>
       {shortList.map((short , index)=>(

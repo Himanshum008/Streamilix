@@ -27,6 +27,8 @@ import SavedContent from './Pages/SavedContent.jsx'
 import SavedPlaylist from './Pages/Playlist/SavedPlaylist.jsx'
 import GetSubscribedData from './customHooks/GetSubscribedData.jsx'
 import Subscription from './Pages/Subscription.jsx'
+import GetHistory from './customHooks/GetHistory.jsx'
+import HistoryContent from './Pages/HistoryContent.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -43,6 +45,7 @@ function App() {
   GetCurrentUser()
   GetAllContentData()
   GetSubscribedData()
+  GetHistory()
 
   const {userData} = useSelector(state => state.user)
   function ChannelPageWrapper() {
@@ -72,6 +75,7 @@ function App() {
     <Route path='/savedcontent' element={<ProtectRoute userData={userData}><SavedContent /></ProtectRoute>} />
     <Route path='/savedplaylist' element={<ProtectRoute userData={userData}><SavedPlaylist /></ProtectRoute>} />
     <Route path='/subscription' element={<ProtectRoute userData={userData}><Subscription /></ProtectRoute>} />
+    <Route path='/history' element={<ProtectRoute userData={userData}><HistoryContent /></ProtectRoute>} />
   </Route>
   <Route path='/signup' element={<SignUp />} />
   <Route path='/signin' element={<SignIn />} />

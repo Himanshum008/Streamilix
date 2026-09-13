@@ -236,6 +236,22 @@ function PlayVideo() {
             setLoading2(false)
         }
     }
+
+    useEffect(()=>{
+        const addHistory = async () => {
+            try {
+                const res = await axios.post(`${serverUrl}/api/user/add-history` , {contentId: videoId, contentType: "Video"} ,
+                    {withCredentials:true}
+                )
+                console.log(res.data);
+                
+            } catch (error) {
+                console.error("Error adding history", error)
+            }
+        }
+
+        if (videoId) addHistory();
+    },[videoId])
     
     useEffect(()=>{setIsSubscribed(channel?.subscribers?.some((sub)=>sub._id?.toString() 
         === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))

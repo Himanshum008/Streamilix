@@ -1,10 +1,12 @@
 import express from 'express'
 import isAuth from '../middlewares/isAuth.middleware.js'
 import { 
+    addHistory,
     createChannel,
     getAllChannelData,
     getChannelData,
     getCurrentUser,
+    getHistory,
     getSubscribedData,
     toggleSubscribe,
     updateChannel
@@ -32,5 +34,9 @@ userRouter.get("/allchanneldata" , isAuth , getAllChannelData)
 userRouter.post("/togglesubscribe" , isAuth , toggleSubscribe)
 
 userRouter.get("/subscribed-content" , isAuth , getSubscribedData)
+
+userRouter.post("/add-history" , isAuth , addHistory)
+
+userRouter.get("/gethistory" , isAuth , getHistory)
 
 export default userRouter 

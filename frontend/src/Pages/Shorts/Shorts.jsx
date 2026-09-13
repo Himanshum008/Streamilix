@@ -42,6 +42,7 @@ function Shorts() {
   const [reply, setReply] = useState(false)
   const [replyText, setReplyText] = useState({})
   const navigate = useNavigate()
+  const [activeIndex, setActiveIndex] = useState(0)
   
 
   useEffect(()=>{
@@ -53,6 +54,7 @@ function Shorts() {
         if (entry.isIntersecting) {
           video.muted = false,
           video.play()
+          setActiveIndex(index)
 
           const currentShortId = shortList[index]._id
           if(!viewedShort.includes(currentShortId)){
@@ -191,6 +193,26 @@ function Shorts() {
     const shuffled = [...allShortsData].sort(()=>Math.random() - 0.5);
     setShortList(shuffled)
   },[allShortsData])
+
+  useEffect(()=>{
+            const addHistory = async () => {
+                try {
+                  const shortId = shortList[activeIndex]?._id
+                  console.log(shortId);
+                  
+                  if (!shortId) return;
+                    const res = await axios.post(`${serverUrl}/api/user/add-history` , {contentId: shortId, contentType: "Short"} ,
+                        {withCredentials:true}
+                    )
+                    console.log(res.data);
+                    
+                } catch (error) {
+                    console.error("Error adding short history", error)
+                }
+            }
+    
+            if (shortList.length > 0) addHistory();
+        },[activeIndex , shortList])
 
   return (
     <div className='h-[calc(100vh-3.75rem)] w-full overflow-y-scroll snap-y snap-mandatory'>

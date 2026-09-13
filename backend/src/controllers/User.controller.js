@@ -2,6 +2,8 @@ import path from "path"
 import uploadOnCloudinary from "../config/cloudinary.js"
 import Channel from "../models/channel.model.js"
 import User from "../models/user.model.js"
+import Video from "../models/video.model.js"
+import Short from "../models/short.model.js"
 
 
 
@@ -246,5 +248,70 @@ export const getSubscribedData = async (req,res) => {
         })
     } catch (error) {
         return res.status(500).json({message: `Server error while fetching subscribed content ${error}`})
+    }
+}
+
+
+export const addHistory = async (req,res) => {
+    try {
+        const userId = req.userId
+        const {contentId, contentType} = req.body
+
+        if (!["Video", "Short"].includes(contentType)) {
+            return res.status(400).json({message: "Invalid contentType"})
+        }
+
+        let content
+        if (contentType === "Video") {
+            content = await Video.findById(contentId)
+        }else{
+            content = await Short.findById(contentId)
+        }
+        if (!content) {return res.status(404).json({message: `${contentType} not found`})}
+        
+        await User.findByIdAndUpdate(userId, {
+            $pull: {history: {contentId, contentType}}
+        })
+
+        await User.findByIdAndUpdate(userId , {
+            $push: {
+                history: {contentId, contentType, watchedAt: new Date()}
+            }
+        })
+
+        return res.status(200).json({message: "Added to history"})
+
+    } catch (error) {
+        console.error("addToHistory error", error);
+        res.status(500).json({message: "Server error"})
+    }
+}
+
+
+export const getHistory = async (req,res) => {
+    try {
+        const userId = req.userId
+
+        const user = await User.findById(userId)
+        .populate({
+            path: "history.contentId",
+            populate: {
+            path: "channel",
+            select: "name avatar",
+        },
+    })
+    .select("history")
+
+    if(!user) {return res.status(404).json({message: "User not found"})}
+
+    const sortedHistory = [...user.history].sort(
+        (a, b) => new Date(b.watchedAt) - new Date(a.watchedAt)
+    )
+
+    res.status(200).json(sortedHistory)
+
+    } catch (error) {
+        console.error("History fetch error", error)
+        res.status(500).json({message: "Server error"})
     }
 }

@@ -105,7 +105,7 @@ function Home() {
         {sidebarOpen && <p className='text-sm text-gray-400 px-2'>You</p>}
         <nav className='space-y-1 mt-3'>
           <SidebarItem icon={<FaHistory/>} text={"History"} open={sidebarOpen} selected={selectedItem ==="History"} 
-          onClick={()=>setSelectedItem("History")}/>
+          onClick={()=>{setSelectedItem("History");navigate("/history")}}/>
           <SidebarItem icon={<FaList/>} text={"Playlists"} open={sidebarOpen} selected={selectedItem ==="Playlists"} 
           onClick={()=>{setSelectedItem("Playlists");navigate("/savedplaylist")}}/>
           <SidebarItem icon={<GoVideo/>} text={"Saved Videos"} open={sidebarOpen} selected={selectedItem ==="Saved Videos"} 
