@@ -25,6 +25,8 @@ import ChannelPage from './Pages/Channel/ChannelPage.jsx'
 import LikedContent from './Pages/LikedContent.jsx'
 import SavedContent from './Pages/SavedContent.jsx'
 import SavedPlaylist from './Pages/Playlist/SavedPlaylist.jsx'
+import GetSubscribedData from './customHooks/GetSubscribedData.jsx'
+import Subscription from './Pages/Subscription.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -40,6 +42,7 @@ function App() {
   GetChannelData()
   GetCurrentUser()
   GetAllContentData()
+  GetSubscribedData()
 
   const {userData} = useSelector(state => state.user)
 
@@ -62,6 +65,7 @@ function App() {
     <Route path='/likedcontent' element={<ProtectRoute userData={userData}><LikedContent /></ProtectRoute>} />
     <Route path='/savedcontent' element={<ProtectRoute userData={userData}><SavedContent /></ProtectRoute>} />
     <Route path='/savedplaylist' element={<ProtectRoute userData={userData}><SavedPlaylist /></ProtectRoute>} />
+    <Route path='/subscription' element={<ProtectRoute userData={userData}><Subscription /></ProtectRoute>} />
   </Route>
   <Route path='/signup' element={<SignUp />} />
   <Route path='/signin' element={<SignIn />} />

@@ -97,7 +97,7 @@ function Home() {
           <SidebarItem icon={<SiYoutubeshorts/>} text={"Shorts"} open={sidebarOpen} selected={selectedItem ==="Shorts"} 
           onClick={()=>{setSelectedItem("Shorts"); navigate("/shorts")}}/>
           <SidebarItem icon={<MdOutlineSubscriptions/>} text={"Subscriptions"} open={sidebarOpen} selected={selectedItem ==="Subscriptions"} 
-          onClick={()=>setSelectedItem("Subscriptions")}/>
+          onClick={()=>{setSelectedItem("Subscriptions");navigate("/subscription")}}/>
         </nav>
 
         <hr className='border-gray-800 my-3'/>
@@ -158,7 +158,7 @@ function Home() {
         <MobileSizeNav icon={<IoIosAddCircle size={40}/>} active={active === "+"} 
         on onClick={()=>{setActive("+");navigate("/create")}}/>
         <MobileSizeNav icon={<MdOutlineSubscriptions/>} text={"Subscriptions"} 
-        active={active === "Subscriptions"} on onClick={()=>setActive("Subscriptions")}/>
+        active={active === "Subscriptions"} on onClick={()=>{setActive("Subscriptions");navigate("/subscription")}}/>
         <MobileSizeNav icon={!userData?.photoUrl?<FaUserCircle/>:<img src={userData?.photoUrl} 
         className='w-8 h-8 rounded-full object-cover border border-gray-700'/>} text={"You"} 
         active={active === "You"} on onClick={()=>{setActive("You");navigate("/mobileprofile")}}/>

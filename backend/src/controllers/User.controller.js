@@ -136,7 +136,9 @@ export const toggleSubscribe = async (req, res) => {
         if (!channel) {
             return res.status(400).json({message:"Channel is not found"})
         }
-        const isSubscribed = channel?.subscribers?.includes(userId)
+        const isSubscribed = channel?.subscribers?.some(
+            subscriber => subscriber.toString() === userId.toString()
+        )
 
         if (isSubscribed) {
             channel?.subscribers.pull(userId)
@@ -193,5 +195,56 @@ export const getAllChannelData = async (req, res) => {
         return res.status(200).json(channels)
     } catch (error) {
         return res.status(500).json({message:`Failled to get all channels ${error}`})
+    }
+}
+
+export const getSubscribedData = async (req,res) => {
+    try {
+        const userId = req.userId
+
+        const subscribedChannels = await Channel.find({subscribers:userId})
+        .populate({
+            path: "videos",
+            populate: { path: "channel", select: "name avatar" }
+        })
+        .populate({
+            path: "shorts",
+            populate: { path: "channel", select: "name avatar" }
+        })
+        .populate({
+            path: "playlists",
+            populate: { path: "channel", select: "name avatar" },
+            populate : {
+            path: "videos",
+            populate: { path: "channel" }
+        }
+        })
+        .populate({
+            path: "communityPosts",
+            populate:[
+                {path: "channel", select: "name avatar"},
+                {path: "comments.author", select: "username photoUrl email"},
+                {path: "comments.replies.author", select: "username photoUrl email"},
+            ]
+    })
+
+        if (!subscribedChannels || subscribedChannels.length === 0) {
+            return res.status(404).json({message: "Failed to find Subscribed Channels"})
+        }
+
+        const videos = subscribedChannels.flatMap((ch => ch.videos))
+        const shorts = subscribedChannels.flatMap((ch => ch.shorts))
+        const playlists = subscribedChannels.flatMap((ch => ch.playlists))
+        const posts = subscribedChannels.flatMap((ch => ch.communityPosts))
+
+        return res.status(200).json({
+            subscribedChannels,                                  
+            videos,
+            shorts,
+            playlists,
+            posts
+        })
+    } catch (error) {
+        return res.status(500).json({message: `Server error while fetching subscribed content ${error}`})
     }
 }
