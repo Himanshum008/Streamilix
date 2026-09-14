@@ -19,7 +19,7 @@ const getVideoDuration = (url, callback) => {
     };
 };
 
-function FiterResults({filterResults}) {
+function FilterResults({filterResults}) {
     const isEmpty = 
     (!filterResults?.videos || filterResults.videos.length === 0) &&
     (!filterResults?.shorts || filterResults.shorts.length === 0) &&
@@ -97,4 +97,4 @@ function FiterResults({filterResults}) {
   )
 }
 
-export default SearchResults
+export default FilterResults

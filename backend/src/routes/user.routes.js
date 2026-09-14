@@ -7,6 +7,7 @@ import {
     getChannelData,
     getCurrentUser,
     getHistory,
+    getRecommendedContent,
     getSubscribedData,
     toggleSubscribe,
     updateChannel
@@ -38,5 +39,7 @@ userRouter.get("/subscribed-content" , isAuth , getSubscribedData)
 userRouter.post("/add-history" , isAuth , addHistory)
 
 userRouter.get("/gethistory" , isAuth , getHistory)
+
+userRouter.get("/recommendation" , isAuth , getRecommendedContent)
 
 export default userRouter 

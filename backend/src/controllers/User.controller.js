@@ -4,6 +4,7 @@ import Channel from "../models/channel.model.js"
 import User from "../models/user.model.js"
 import Video from "../models/video.model.js"
 import Short from "../models/short.model.js"
+import { title } from "process"
 
 
 
@@ -313,5 +314,93 @@ export const getHistory = async (req,res) => {
     } catch (error) {
         console.error("History fetch error", error)
         res.status(500).json({message: "Server error"})
+    }
+}
+
+
+export const getRecommendedContent = async (req, res) => {
+    try {
+        const userId = req.userId
+        if (!userId) return res.status(401).json({message: "Unauthorized"})
+            
+            // get user with history
+            const user = await User.findById(userId)
+            .populate("history.contentId")
+            .lean()
+            if (!user) return res.status(404).json({message: "User not found"});
+
+            // collect keyword from history
+            const historyKeywords = user.history.map(h => h.contentId?.title || "")
+
+            // collect liked&saved content
+            const likedVideos = await Video.find({likes: userId});
+            const likedShorts = await Short.find({likes: userId});
+            const savedVideos = await Video.find({saveBy: userId});
+            const savedShorts = await Short.find({saveBy: userId});
+
+            const likedSavedKeywords = [
+                ...likedVideos.map(v => v.title),
+                ...likedShorts.map(s => s.title),
+                ...savedVideos.map(v => v.title),
+                ...savedShorts.map(s => s.title),
+            ];
+
+            // merge all keywords
+            const allKeywords = [...historyKeywords, ...likedSavedKeywords]
+            .filter(Boolean)
+            .map(k => k.split(" "))
+            .flat();
+
+            // build regex condition
+            const videoConditions = [];
+            const shortConditions = [];
+
+            allKeywords.forEach(kw => {
+                videoConditions.push(
+                    {title: {$regex: kw, $options: "i"}},
+                    {description: {$regex: kw, $options: "i"}},
+                    {tags: {$regex: kw, $options: "i"}}
+                );
+                 shortConditions.push(
+                    {title: {$regex: kw, $options: "i"}},
+                    {tags: {$regex: kw, $options: "i"}}
+                );
+            });
+
+            // recommended content
+            const recommendedVideos = await Video.find({$or: videoConditions})
+            .populate("channel comments.author comments.replies.author");
+            
+            const recommendedShorts = await Short.find({$or: shortConditions})
+            .populate("channel" , "name avatar")
+            .populate("likes" , "username photoUrl");
+
+            // remainig content {exclude rec}
+            const recommendedVideoIds = recommendedVideos.map(v => v._id)
+            const recommendedShortIds = recommendedShorts.map(s => s._id)
+
+            const remainingVideos = await Video.find({
+                _id: {$nin: recommendedVideoIds}
+            })
+            .sort({createdAt: -1})
+            .populate("channel")
+
+            const remainingShorts = await Short.find({
+                 _id: {$nin: recommendedShortIds}
+            })
+            .sort({createdAt: -1})
+            .populate("channel")
+
+            return res.status(200).json({
+                recommendedVideos,
+                recommendedShorts,
+                remainingVideos,
+                remainingShorts,
+                usedKeywords: allKeywords,
+            })
+                
+    } catch (error) {
+        console.error("Recommendation error:", error);
+        return res.status(500).json({message: `Failed: ${error.message}`})
     }
 }

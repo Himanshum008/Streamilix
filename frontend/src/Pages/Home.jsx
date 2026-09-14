@@ -25,7 +25,8 @@ import axios from 'axios'
 import { serverUrl } from '../App.jsx'
 import { ClipLoader } from 'react-spinners'
 import SearchResults from '../components/SearchResults.jsx'
-
+import RecommendedContent from './RecommendedContent.jsx'
+import FilterResults from "../components/FilterResults.jsx";
 
 
 function Home() {
@@ -139,7 +140,11 @@ function Home() {
   const handleCategoryFilter = async (category) => {
     setLoading1(true)
     try {
-      const result = await axios.post(serverUrl + "/api/content/filter" , {input: category} , {withCredentials:true})
+      const result = await axios.post(
+        serverUrl + "/api/content/filter" , 
+        { input : category },
+        {withCredentials:true}
+      )
 
       const {videos = [], shorts=[], channels = []} = result.data
 
@@ -163,6 +168,15 @@ function Home() {
         videos: [...videos, ...channelVideos],
         shorts: [...shorts, ...channelShorts]
       });
+      setLoading1(false)
+      navigate("/")
+
+      console.log("Category filter merged:", {
+        ...result.data,
+        videos: [...videos, ...channelVideos],
+        shorts: [...shorts, ...channelShorts],
+      });
+      
 
       if(
         videos.length > 0 ||
@@ -339,9 +353,11 @@ function Home() {
             {loading1?<ClipLoader size={35} color='white'/>:""}</div>}
       
             {searchData && <SearchResults searchResults={searchData}/>}
-            {filterData && <filterResults filterResults={filterData}/>}
-            <AllVideosPage/>
-            <AllShortsPage/>
+            {filterData && <FilterResults filterResults={filterData}/>}
+
+            {userData ? <RecommendedContent/> : <><AllVideosPage/>
+            <AllShortsPage/></>}
+            
           </div>
           </>)}
           {popUp && <Profile/>}

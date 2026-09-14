@@ -29,6 +29,7 @@ import GetSubscribedData from './customHooks/GetSubscribedData.jsx'
 import Subscription from './Pages/Subscription.jsx'
 import GetHistory from './customHooks/GetHistory.jsx'
 import HistoryContent from './Pages/HistoryContent.jsx'
+import GetRecommendedContent from './customHooks/GetRecommendedContent.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -46,6 +47,7 @@ function App() {
   GetAllContentData()
   GetSubscribedData()
   GetHistory()
+  GetRecommendedContent()
 
   const {userData} = useSelector(state => state.user)
   function ChannelPageWrapper() {
