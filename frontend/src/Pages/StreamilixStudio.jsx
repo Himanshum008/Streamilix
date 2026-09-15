@@ -63,7 +63,7 @@ function StreamilixStudio() {
                   text="Analytics"
                   active={active}
                   setActive={setActive}
-                  onClick={()=>navigate("/streamilixstudio/dashboard")}
+                  onClick={()=>navigate("/streamilixstudio/analytics")}
                 />
                 <SidebarItem
                   icon={<RiMoneyRupeeCircleFill />}

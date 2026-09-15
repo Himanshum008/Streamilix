@@ -7,6 +7,14 @@ function Dashboard() {
     const {channelData} = useSelector(state=>state.user)
     const navigate = useNavigate()
 
+  if (!channelData) {
+    return (
+      <div className='flex items-center justify-center min-h-screen text-gray-400'>
+        Loading channel data....
+      </div>
+    )
+  }
+
     const totalVideoViews = (channelData.videos || []).reduce(
         (acc, vid) => acc + (vid.views || 0) , 0
     );
@@ -147,7 +155,7 @@ function ContentCard1 ({ content, onClick }) {
         className='w-20 h-24 object-cover'
         muted
         playsInline="metadata"
-        onContentMenu={(e) => e.preventDefault()}
+        onContextMenu={(e) => e.preventDefault()}
       />
 
       {/* Content Info */}

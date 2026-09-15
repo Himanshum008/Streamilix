@@ -35,6 +35,7 @@ import Dashboard from './components/Dashboard.jsx'
 import Analytics from './components/Analytics.jsx'
 import Content from './components/Content.jsx'
 import Revenue from './components/Revenue.jsx'
+import StreamilixStudio from './Pages/StreamilixStudio.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -92,7 +93,7 @@ function App() {
   <Route path='/playvideo/:videoId' element={<ProtectRoute userData={userData}><PlayVideo /></ProtectRoute>} />
 
 
-  <Route path='/streamilixstudio' element={<ProtectRoute userData={userData}><StramilixStudio /></ProtectRoute>} >
+  <Route path='/streamilixstudio' element={<ProtectRoute userData={userData}><StreamilixStudio /></ProtectRoute>} >
     <Route path='/streamilixstudio/dashboard' element={<ProtectRoute userData={userData}><Dashboard /></ProtectRoute>} />
     <Route path='/streamilixstudio/analytics' element={<ProtectRoute userData={userData}><Analytics /></ProtectRoute>} />
     <Route path='/streamilixstudio/content' element={<ProtectRoute userData={userData}><Content /></ProtectRoute>} />

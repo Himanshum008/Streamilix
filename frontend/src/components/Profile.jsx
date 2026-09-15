@@ -78,7 +78,7 @@ function Profile() {
             <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700' onClick={()=>navigate("/signin")}>
                 <MdOutlineSwitchAccount className='text-xl' />Sign in with other Account</button>
             {userData?.channel && <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700' 
-            onClick={()=>navigate("ptstudio/dashboard")}>
+            onClick={()=>navigate("streamilixstudio/dashboard")}>
                 <SiYoutubestudio className='w-5 h-5 text-orange-500'/>Stramilix studio</button>}
             {userData && <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700'>
                 <FiLogOut className='text-xl' onClick={handleSignout}/>Signout</button>}
