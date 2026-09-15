@@ -92,7 +92,8 @@ function MobileProfile() {
             <ProfileMeanuItem icon={<FaList />} text={"Playlists"} onClick={()=>navigate("/savedplaylist")}/>
             <ProfileMeanuItem icon={<GoVideo />} text={"Save Videos"} onClick={()=>navigate("/savedcontent")}/>
             <ProfileMeanuItem icon={<FaThumbsUp />} text={"Liked Videos"} onClick={()=>navigate("/likedcontent")}/>
-            <ProfileMeanuItem icon={<SiYoutubestudio className='text-xl text-orange-400' />} text={"PT Studio"} />
+            <ProfileMeanuItem icon={<SiYoutubestudio className='text-xl text-orange-400' />} text={"PT Studio"} 
+            onClick={()=>navigate("/ptstudio/dashboard")}/>
         </div>
 
 

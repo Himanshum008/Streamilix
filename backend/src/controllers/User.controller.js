@@ -115,7 +115,29 @@ export const updateChannel = async (req, res) => {
 export const getChannelData = async (req, res) => {
     try {
         const userId = req.userId
-        const channel = await Channel.findOne({Owner:userId}).populate("Owner").populate("videos").populate("shorts")
+        const channel = await Channel.findOne({Owner:userId})
+        .populate("Owner")
+        .populate("videos")
+        .populate("shorts")
+        .populate("subscribers")
+        .populate({
+            path: "communityPosts",
+            populate: {
+                path: "channel",
+                model: "Channel",
+            },
+        })
+        .populate({
+            path: "playlists",
+            populate: {
+                path: "videos",
+                model: "Video",
+                populate: {
+                    path: "channel",
+                    model: "Channel",
+                },
+            },
+        })
 
         if (!channel) {
             return res.status(404).json({message: "Channel is not found"})

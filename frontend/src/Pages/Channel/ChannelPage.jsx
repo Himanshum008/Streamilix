@@ -31,7 +31,7 @@ function ChannelPage() {
 
     const [channel, setChannel] = useState(channelData)
     const [loading, setLoading] = useState(false)
-    const [activeTab, setActiveTab] = useState("videos")
+    const [activeTab, setActiveTab] = useState("Videos")
     const [isSubscribed, setIsSubscribed] = useState(channel?.subscribers?.some((sub)=>sub?._id?.toString() 
         === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
 

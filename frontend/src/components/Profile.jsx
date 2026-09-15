@@ -58,7 +58,7 @@ function Profile() {
   return (
 
     <div className='absolute right-5 top-10 mt-2 w-90 bg-[#212121] text-white rounded-xl shadow-lg z-50 hidden md:block'>
-        {userData && <div className='flex items-center gap-3 p-4 border-b border-gray-700'>
+        {userData && <div className='flex items-center gap-3 p-4 justify-start border-b border-gray-700'>
             <img src={userData?.photoUrl} alt="image" className='w-12 h-12 flex items-center justify-center rounded-full
             object-cover border border-gray-700'/>
             <div>
@@ -77,7 +77,8 @@ function Profile() {
                 <TiUserAddOutline className='text-xl' />Create new Account</button>
             <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700' onClick={()=>navigate("/signin")}>
                 <MdOutlineSwitchAccount className='text-xl' />Sign in with other Account</button>
-            {userData?.channel && <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700'>
+            {userData?.channel && <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700' 
+            onClick={()=>navigate("ptstudio/dashboard")}>
                 <SiYoutubestudio className='w-5 h-5 text-orange-500'/>PT studio</button>}
             {userData && <button className='flex items-center gap-3 px-4 py-2 hover:bg-gray-700'>
                 <FiLogOut className='text-xl' onClick={handleSignout}/>Signout</button>}
