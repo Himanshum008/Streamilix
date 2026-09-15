@@ -28,7 +28,7 @@ function ViewChannel() {
               <button className='bg-white text-black px-4 py-1 rounded-full font-medium cursor-pointer active:bg-gray-900
               active:text-white' onClick={()=>navigate("/updatechannel")}>Customize channel</button>
               <button className='bg-[#272727] px-4 py-1 rounded-full font-medium cursor-pointer active:bg-gray-200
-              active:text-black' onClick={()=>navigate("/ptstudio/dashboard")}>Manage Videos</button>
+              active:text-black' onClick={()=>navigate("/streamilixstudio/dashboard")}>Manage Videos</button>
             </div>
         </div>
         <div className='flex flex-col items-center mt-16'>

@@ -30,7 +30,7 @@ import Subscription from './Pages/Subscription.jsx'
 import GetHistory from './customHooks/GetHistory.jsx'
 import HistoryContent from './Pages/HistoryContent.jsx'
 import GetRecommendedContent from './customHooks/GetRecommendedContent.jsx'
-import PTStudio from './Pages/PTStudio.jsx'
+
 import Dashboard from './components/Dashboard.jsx'
 import Analytics from './components/Analytics.jsx'
 import Content from './components/Content.jsx'
@@ -92,11 +92,11 @@ function App() {
   <Route path='/playvideo/:videoId' element={<ProtectRoute userData={userData}><PlayVideo /></ProtectRoute>} />
 
 
-  <Route path='/ptstudio' element={<ProtectRoute userData={userData}><PTStudio /></ProtectRoute>} >
-    <Route path='/ptstudio/dashboard' element={<ProtectRoute userData={userData}><Dashboard /></ProtectRoute>} />
-    <Route path='/ptstudio/analytics' element={<ProtectRoute userData={userData}><Analytics /></ProtectRoute>} />
-    <Route path='/ptstudio/content' element={<ProtectRoute userData={userData}><Content /></ProtectRoute>} />
-    <Route path='/ptstudio/revenue' element={<ProtectRoute userData={userData}><Revenue /></ProtectRoute>} />
+  <Route path='/streamilixstudio' element={<ProtectRoute userData={userData}><StramilixStudio /></ProtectRoute>} >
+    <Route path='/streamilixstudio/dashboard' element={<ProtectRoute userData={userData}><Dashboard /></ProtectRoute>} />
+    <Route path='/streamilixstudio/analytics' element={<ProtectRoute userData={userData}><Analytics /></ProtectRoute>} />
+    <Route path='/streamilixstudio/content' element={<ProtectRoute userData={userData}><Content /></ProtectRoute>} />
+    <Route path='/streamilixstudio/revenue' element={<ProtectRoute userData={userData}><Revenue /></ProtectRoute>} />
   </Route>
   </Routes>
   </>

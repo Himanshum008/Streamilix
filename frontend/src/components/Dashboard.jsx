@@ -33,7 +33,7 @@ function Dashboard() {
                 <AnalyticsCard
                 label="Views"
                 value={totalViews || "0"}
-                onClick={()=>navigate("/ptstudio/analytics")}
+                onClick={()=>navigate("/streamilixstudio/analytics")}
                 />
                 <AnalyticsCard
                 label="Subscribers"

@@ -6,7 +6,7 @@ import Profile from '../components/Profile'
 import { FaChartBar, FaPlusCircle, FaTachometerAlt, FaVideo } from 'react-icons/fa'
 import { RiMoneyRupeeCircleFill } from 'react-icons/ri'
 
-function PTStudio() {
+function StreamilixStudio() {
     const navigate = useNavigate()
     const {channelData} = useSelector(state=>state.user)
 
@@ -20,7 +20,7 @@ function PTStudio() {
             <div className='flex items-center gap-2 cursor-pointer' onClick={()=>navigate("/")}>
                 <SiYoutubestudio className='text-orange-500 w-7 h-7'/>
                 <h1 className='text-lg sm:text-xl font-bold tracking-wide text-white'
-                >PT <span className='text-[#ffffff]'>Studio</span></h1>
+                >Streamilix <span className='text-[#ffffff]'>Studio</span></h1>
 
             </div>
 
@@ -49,28 +49,28 @@ function PTStudio() {
                   text="Dashboard"
                   active={active}
                   setActive={setActive}
-                  onClick={()=>navigate("/ptstudio/dashboard")}
+                  onClick={()=>navigate("/streamilixstudio/dashboard")}
                 />
                 <SidebarItem
                   icon={<FaVideo />}
                   text="Content"
                   active={active}
                   setActive={setActive}
-                  onClick={()=>navigate("/ptstudio/content")}
+                  onClick={()=>navigate("/streamilixstudio/content")}
                 />
                 <SidebarItem
                   icon={<FaChartBar />}
                   text="Analytics"
                   active={active}
                   setActive={setActive}
-                  onClick={()=>navigate("/ptstudio/dashboard")}
+                  onClick={()=>navigate("/streamilixstudio/dashboard")}
                 />
                 <SidebarItem
                   icon={<RiMoneyRupeeCircleFill />}
                   text="Revenue"
                   active={active}
                   setActive={setActive}
-                  onClick={()=>navigate("/ptstudio/revenue")}
+                  onClick={()=>navigate("/streamilixstudio/revenue")}
                 />
             </nav>
             </aside>
@@ -97,7 +97,7 @@ function PTStudio() {
               active={active === "Dashboard"}
               onClick={()=>{
                 setActive("Dashboard");
-                navigate("/ptstudio/dashboard")
+                navigate("/streamilixstudio/dashboard")
               }}
             />
             <MobileNavItem
@@ -106,7 +106,7 @@ function PTStudio() {
               active={active === "Content"}
               onClick={()=>{
                 setActive("Content");
-                navigate("/ptstudio/content")
+                navigate("/streamilixstudio/content")
               }}
             />
             <MobileNavItem
@@ -122,7 +122,7 @@ function PTStudio() {
               active={active === "Analytics"}
               onClick={()=>{
                 setActive("Analytics");
-                navigate("/ptstudio/analytics")
+                navigate("/streamilixstudio/analytics")
               }}
             />
             <MobileNavItem
@@ -131,7 +131,7 @@ function PTStudio() {
               active={active === "Revenue"}
               onClick={()=>{
                 setActive("Revenue");
-                navigate("/ptstudio/revenue")
+                navigate("/streamilixstudio/revenue")
               }}
             />
         </nav>
@@ -169,4 +169,4 @@ function MobileNavItem ({icon, text, onClick, active}) {
   )
 }
 
-export default PTStudio
+export default StreamilixStudio
