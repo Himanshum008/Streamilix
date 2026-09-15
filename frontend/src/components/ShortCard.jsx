@@ -17,7 +17,13 @@ function ShortCard({shortUrl, title, channelName, avatar, views, id}) {
                 <p className='text-xs text-gray-400'>{channelName}</p>
                 
             </div>
-            <p className='text-xs text-gray-400'>{views} views</p>
+            <p className='text-xs text-gray-400'>{
+                Number(views) >= 1_000_000
+                    ? Math.floor(Number(views) / 1_000_000) + "M"
+                    : Number(views) >= 1_000
+                    ? Math.floor(Number(views) / 1_000) + "K"
+                    : Number(views) || 0
+                } views</p>
         </div>
 
     </div>

@@ -30,9 +30,11 @@ function HistoryContent() {
     useEffect((
             ()=>{
                 if(Array.isArray(historyVideo) && historyVideo.length > 0) {
-                    historyVideo.forEach((v)=>{
-                        const videos = v?.contentId
-                      getVideoDuration(videos.videoUrl , (formattedTime)=>{
+                                        historyVideo.forEach((v)=>{
+                                                const videos = v?.contentId
+                                                if (!videos?.videoUrl) return;
+
+                                            getVideoDuration(videos.videoUrl , (formattedTime)=>{
                         setDuration((prev)=>({...prev , [videos._id] : formattedTime}))
                       })  
                     }) 
@@ -40,7 +42,7 @@ function HistoryContent() {
             }
         ),[historyVideo])
 
-    if ((!historyVideo && !historyShort) || (historyVideo.length === 0 && historyShort.length === 0)) {
+    if ((!historyVideo && !historyShort) || ((historyVideo?.length || 0) === 0 && (historyShort?.length || 0) === 0)) {
         return (
             <div className='flex justify-center items-center h-[70vh] text-gray-400 text-xl'>
                 No Content Found
@@ -53,7 +55,7 @@ function HistoryContent() {
   return (
     <div className='px-6 py-4 min-h-screen mt-12.5 lg:mt-5'>
 
-        {historyShort.length > 0 && (
+        {(historyShort?.length || 0) > 0 && (
             <>
             <h2 className='text-2xl font-bold mb-6 pt-12.5 border-b border-gray-300 pb-2 flex items-center gap-1'>
                 <SiYoutubeshorts className='w-7 h-7 text-orange-600'/>Shorts History
@@ -77,7 +79,7 @@ function HistoryContent() {
             </>
         )}
 
-        {historyVideo.length > 0 && (
+        {(historyVideo?.length || 0) > 0 && (
             <>
             <h2 className='text-2xl font-bold mb-6 pt-12.5 border-b border-gray-300 pb-2 flex items-center gap-1'>
                 <GoVideo className='w-7 h-7 text-orange-600'/>Videos History
@@ -88,8 +90,8 @@ function HistoryContent() {
                     return(
                     <div key={v?._id} className='shrink-0'>
                         <VideoCard
-                        thumbnail={video.thumbnail}
-                        key={video._id}
+                        thumbnail={video?.thumbnail}
+                        key={video?._id}
                         duration={duration[video?._id] || "0:00"}
                         title={video?.title}
                         channelLogo={video?.channel?.avatar}

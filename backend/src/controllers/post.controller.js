@@ -125,3 +125,23 @@ export const addReplyForPost = async (req, res) => {
         return res.status(500).json({message:`Error adding reply ${error}`})
     }
 }
+
+
+export const deletePost = async (req, res) => {
+    try {
+        const {postId} = req.params
+
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({message: "Post not found"});
+
+        await Channel.findByIdAndUpdate(post.channel, {
+            $pull: {communityPosts:post._id}
+        })
+
+        await Post.findByIdAndDelete(postId);
+
+        return res.status(200).json({message: "Post is deleted successfully"})
+    } catch (error) {
+        return res.status(500).json({message: "Error in deleting post", error: error.message})
+    }
+}

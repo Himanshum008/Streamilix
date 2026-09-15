@@ -224,3 +224,77 @@ export const getSavedShort = async (req, res) => {
         return res.status(500).json({message: `Error to find liked saved ${error}`})
     }
 }
+
+export const fetchShort = async (req, res) => {
+    try {
+        const {shortId} = req.params;
+
+        const short = await Short.findById(shortId)
+        .populate("channel", "name avatar")
+        .populate("likes", "username photoUrl")
+
+        if (!short) {
+           return res.status(404).json({message: "Short not found"}) 
+        };
+        return res.status(200).json(short)
+    } catch (error) {
+        console.error("Error in fetching short:", error)
+        return res.status(500).json({
+            message: "Error in fetching short", 
+            error: error.message
+        })
+    }
+}
+
+
+export const updateShort = async (req,res) => {
+    try {
+        const {shortId} = req.params;
+        const {title, description, tags} = req.body;
+
+        const short = await Short.findById(shortId);
+        if (!short) {
+            return res.status(404).json({message: "Short not found"})
+        }
+
+        if (title) short.title = title;
+        if (description) short.description = description;
+
+        if (tags) {
+            try {
+                short.tags = JSON.parse(tags)
+            } catch (error) {
+                short.tags = []
+            }
+        }
+
+        await short.save();
+
+        return res.status(200).json(short)
+    } catch (error) {
+        console.error("Error in updating shorts");
+        return res.status(500).json({message: "Error in updating shorts", error: error.message})
+    }
+}
+
+
+export const deleteShort = async (req,res) => {
+    try {
+        const {shortId}= req.params;
+        const short = await Short.findById(shortId);
+
+        if (!short) {
+            return res.status(404).json({message: "Short not found"})
+        }
+
+        await Channel.findByIdAndUpdate(short.channel, {
+            $pull: {shorts: short._id},
+        })
+
+        await Short.findByIdAndDelete(shortId);
+        return res.status(200).json({message: "Short deleted successfully"})
+    } catch (error) {
+        console.error("Error in deleting short:", error)
+        return res.status(500).json({message: "Error in deleting short:", error: error.message})
+    }
+}

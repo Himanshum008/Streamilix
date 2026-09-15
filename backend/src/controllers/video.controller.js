@@ -239,3 +239,83 @@ export const getSavedVideos = async (req,res) => {
         return res.status(500).json({message: `Error to find saved videos ${error}`})
     }
 }
+
+
+export const fetchVideo = async (req, res) => {
+    try {
+        const {videoId} = req.params;
+
+        const video = await Video.findById(videoId)
+        .populate("channel", "name avatar")
+        .populate("likes", "username photoUrl")
+
+        if (!video) {
+           return res.status(404).json({message: "Video not found"}) 
+        };
+        return res.status(200).json(video)
+    } catch (error) {
+        console.error("Error fetching video:", error)
+        return res.status(500).json({
+            message: "Error fetching video", 
+            error: error.message
+        })
+    }
+}
+
+
+export const updateVideo = async (req,res) => {
+    try {
+        const {videoId} = req.params;
+        const {title, description, tags} = req.body;
+
+        const video = await Video.findById(videoId);
+        if (!video) {
+            return res.status(404).json({message: "Video not found"})
+        }
+
+        if (title) video.title = title;
+        if (description) video.description = description;
+
+        if (tags) {
+            try {
+                video.tags = JSON.parse(tags)
+            } catch (error) {
+                video.tags = []
+            }
+        }
+
+        if (req.file) {
+            const uploadedThumbnail = await uploadOnCloudinary(req.file.path);
+            video.thumbnail = uploadedThumbnail;
+        }
+
+        await video.save();
+
+        return res.status(200).json(video)
+    } catch (error) {
+        console.error("Error in updating videos");
+        return res.status(500).json({message: "Error in updating video", error: error.message})
+    }
+}
+
+
+export const deleteVideo = async (req,res) => {
+    try {
+        const {videoId}= req.params;
+        const video = await Video.findById(videoId);
+
+        if (!video) {
+            return res.status(404).json({message: "Video not found"})
+        }
+
+        await Channel.findByIdAndUpdate(video.channel, {
+            $pull: {videos: video._id},
+        })
+
+        await Video.findByIdAndDelete(videoId);
+        return res.status(200).json({message: "Video deleted successfully"})
+    } catch (error) {
+        console.error("Error in deleting video:", error)
+        return res.status(500).json({message: "Error in deleting video:", error: error.message})
+    }
+}

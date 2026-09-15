@@ -27,7 +27,7 @@ function StreamilixStudio() {
             <div className='ml-auto flex items-center gap-3 sm:gap-4'>
                 <button className='bg-[#272727] px-3 sm:px-4 py-1 lg:rounded-lg rounded-full hover:bg-[#161414]
                 active:scale-95 transition cursor-pointer text-sm hidden md:flex items-center justify-center gap-1
-                '><FaPlusCircle /> <span>Create</span></button>
+                ' onClick={()=>navigate("/create")}><FaPlusCircle /> <span>Create</span></button>
                 <img src={channelData?.avatar} alt="" className='w-8 h-8 sm:w-9 sm:h-9 rounded-full border 
                 border-gray-600 object-cover hover:scale-105 transiton' onClick={()=>setOpen(!open)}/>
             </div>

@@ -73,7 +73,7 @@ function CreateVideos() {
           </label>
 
           <input type="text" placeholder='Title*' className='w-full p-3 rounded-lg bg-[#121212] border border-gray-700 text-white
-          focus:ring-2 focus:ring-orange-500 focus:outline-none' onChange={(e)=>setTitle(e.target.value)} title='value'/>
+          focus:ring-2 focus:ring-orange-500 focus:outline-none' onChange={(e)=>setTitle(e.target.value)} value={title}/>
 
           <textarea  placeholder='Description*' className='w-full p-3 rounded-lg bg-[#121212] border border-gray-700 text-white
           focus:ring-2 focus:ring-orange-500 focus:outline-none' onChange={(e)=>setDescription(e.target.value)} value={description}/>
