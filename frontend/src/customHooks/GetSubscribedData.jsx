@@ -31,6 +31,11 @@ const GetSubscribedData = () => {
                 dispatch(setSubscribedPosts(result.data.posts || []))
             } catch (error) {
                 console.log(error);
+                dispatch(setSubscribedChannels([]))
+                dispatch(setSubscribedVideos([]))
+                dispatch(setSubscribedShorts([]))
+                dispatch(setSubscribedPlaylists([]))
+                dispatch(setSubscribedPosts([]))
             }
         }
         fetchSubscribedData()

@@ -5,6 +5,46 @@ import { FaHeart, FaComment, FaReply, FaTimes } from 'react-icons/fa'
 import { useSelector } from 'react-redux'
 import { serverUrl } from '../App.jsx'
 import { ClipLoader } from 'react-spinners'
+import { timeAgo } from '../../../backend/src/utils/timeAgo.js'
+
+const sortCommentsWithReplies = (comments = []) => [...comments]
+    .map((comment) => ({
+        ...comment,
+        replies: [...(comment?.replies || [])].sort(
+            (firstReply, secondReply) =>
+                new Date(secondReply?.createdAt || 0) - new Date(firstReply?.createdAt || 0)
+        )
+    }))
+    .sort(
+        (firstComment, secondComment) =>
+            new Date(secondComment?.createdAt || 0) - new Date(firstComment?.createdAt || 0)
+    )
+
+const ExpandableText = ({text, className = ""}) => {
+    const textRef = React.useRef(null)
+    const [expanded, setExpanded] = useState(false)
+    const [hasOverflow, setHasOverflow] = useState(false)
+
+    React.useEffect(() => {
+        const element = textRef.current
+        if (!element) return
+
+        setHasOverflow(element.scrollHeight > element.clientHeight)
+    }, [text])
+
+    return (
+        <div className={className}>
+            <p ref={textRef} className={`whitespace-pre-line ${expanded ? "" : "line-clamp-1"}`} style={{overflowWrap: "anywhere"}}>
+                {text}
+            </p>
+            {hasOverflow && (
+                <button className='text-xs text-blue-400 hover:underline' onClick={()=>setExpanded((previous)=>!previous)}>
+                    {expanded ? "show less" : "show more"}
+                </button>
+            )}
+        </div>
+    )
+}
 
 function PostCard({post}) {
     const {userData} = useSelector(state=>state.user)
@@ -14,7 +54,7 @@ function PostCard({post}) {
     const [newComment, setNewComment] = useState("")
     const [loading, setLoading] = useState(false)
     const [loading1, setLoading1] = useState(false)
-    const [comments, setComments] = useState(post?.comments || [])
+    const [comments, setComments] = useState(sortCommentsWithReplies(post?.comments))
 
     const handleLike = async () => {
         try {
@@ -35,8 +75,7 @@ function PostCard({post}) {
         try {
             const result = await axios.post(`${serverUrl}/api/content/post/add-comment` , 
                 {message:newComment , postId:post?._id} , {withCredentials:true})
-                setComments(prev=>[result.data?.comments.slice(-1)[0] , ...prev])
-                setComments(result.data?.comments)
+                setComments(sortCommentsWithReplies(result.data?.comments))
                 console.log(result.data?.comments);
                 setLoading(false)
                 setNewComment("")
@@ -52,8 +91,7 @@ function PostCard({post}) {
         try {
             const result = await axios.post(`${serverUrl}/api/content/post/add-reply` , 
                 {message:replyText , postId:post?._id , commentId} , {withCredentials:true})
-                setComments(prev=>[...prev , result.data.comments])
-                setComments(result.data.comments)
+                setComments(sortCommentsWithReplies(result.data?.comments))
                 console.log(result.data?.comments);
                 setLoading1(false)
                 
@@ -85,20 +123,19 @@ function PostCard({post}) {
     </div>
 
     {showComments && (
-        <div className='absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md p-4 rounded-t-2xl border-t \
-        border-gray-700 max-h-[50%] overflow-y-auto space-y-2'>
-            <div className='flex items-center w-full justify-between py-2.5'>
+        <div className='absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md p-4 rounded-t-2xl border-t border-gray-700 max-h-[70%] overflow-y-auto space-y-2'>
+            <div className='top-0 z-10 flex items-center w-full justify-between bg-gray-900/95 py-2.5 backdrop-blur-md'>
                 <h3  className='text-gray-300 font-semibold mb-2'>Comments</h3>
                 <button className='text-gray-400 hover:bg-orange-500 transition' 
-                onClick={()=>setShowComments(false)}><FaTimes size={18}/></button>
+                onClick={()=>setShowComments(!comments)}><FaTimes size={18}/></button>
             </div>
             
-            <div className='flex gap-2 mt-3 items-center'>
+            <div className='flex w-full max-w-2xl gap-2 mt-3 items-center'>
                 <img src={userData?.photoUrl} alt="" className='w-8 h-8 rounded-full'/>
                 <input type="text" onChange={(e)=>setNewComment(e.target.value)} value={newComment}
-                className='flex-1 px-3 py-2 rounded-lg bg-gray-700 text-gray-200 text-sm 
+                className='min-w-0 h-10 flex-1 px-3 py-2 rounded-lg bg-gray-700 text-gray-200 text-sm 
                 focus:outline-none focus:ring-2 focus:ring-orange-500' placeholder='Add a comment....'/>
-                <button disabled={loading} className='px-4 py-2 bg-orange-600 rounded-lg text-white text-sm hover:bg-orange-700'
+                <button disabled={loading} className='h-10 shrink-0 px-4 py-2 bg-orange-600 rounded-lg text-white text-sm hover:bg-orange-700'
                 onClick={handleAddComment}>{loading ? <ClipLoader size={20} color='black'/>:"Post"}</button>
             </div>
 
@@ -110,22 +147,9 @@ function PostCard({post}) {
                             <img src={comment?.author?.photoUrl} alt="" className='w-6 h-6 rounded-full'/>
                             <span className='text-sm font-semibold text-gray-200'>{comment?.author?.username}</span>    
                         </div>
-                        <p className='text-gray-200 ml-8'>{comment?.message}</p>
-                        <div className='ml-4 mt-2 space-y-2'>
-                                {
-                                    comment?.replies.map((reply)=>(
-                                        <div key={reply._id} className='p-2 bg-[#2a2a2a] rounded'>
-                                            <div className='flex items-center justify-start gap-1'>
-                                                <img src={reply?.author?.photoUrl} alt="" className='w-6 h-6 rounded-full object-cover'/>
-                                                <h2 className='text-[13px]'>{reply?.author?.username}</h2>
-                                                <p className='px-5 py-5'>{reply.message}</p>
-                                            </div>
-                                        </div>
-                                    ))
-                                }
-                            </div>
+                        <ExpandableText text={comment?.message} className='ml-8 text-gray-200'/>
 
-                        <ReplySection comment={comment} handleReply={handleAddReply} loading1={loading1}/>
+                        <ReplySection comment={comment} replies={comment?.replies} handleReply={handleAddReply} loading1={loading1}/>
 
                     </div>   
                     ))) 
@@ -140,26 +164,39 @@ function PostCard({post}) {
   )
 }
 
-const ReplySection = ({comment, handleReply, loading1})=>{
+const ReplySection = ({comment, replies = [], handleReply, loading1})=>{
     const [replyText, setReplyText] = useState("")
     const [showReplyInput, setShowReplyInput] = useState(false)
 
     return(
         <div className='mt-3'>
             {showReplyInput && 
-            <div className='flex gap-2 mt-1 ml-4'>
+            <div className='flex w-full max-w-xl gap-2 mt-1 ml-0 sm:ml-4'>
                 <input type="text" 
                 placeholder='Add a reply...!' 
                 className='flex-1 border border-gray-700 bg-[#1a1a1a] text-white rounded-lg px-2 py-2 focus:ring-1 
-                focus:ring-orange-600 text-sm' 
+                min-w-0 h-9 focus:ring-orange-600 text-sm' 
                 onChange={(e)=>setReplyText(e.target.value)} value={replyText}/>
                 <button onClick={()=>{handleReply({commentId:comment._id , replyText:replyText}); 
                 setShowReplyInput(false); setReplyText("")}} disabled={loading1}
-                    className='bg-orange-600 hover:bg-orange-700 text-white px-3 rounded-lg text-sm'>
+                    className='shrink-0 h-9 bg-orange-600 hover:bg-orange-700 text-white px-3 rounded-lg text-sm'>
                         {loading1 ? <ClipLoader color='black'/> : "Reply"}</button>
             </div>}
 
             <button onClick={()=>setShowReplyInput(!showReplyInput)} className='ml-4 text-xs text-gray-400 mt-1'>reply</button>
+
+            {showReplyInput && <div className='ml-4 mt-2 space-y-2'>
+                {replies.map((reply)=>(
+                    <div key={reply?._id} className='p-2 bg-[#2a2a2a] rounded'>
+                        <div className='flex items-center justify-start gap-1'>
+                            <img src={reply?.author?.photoUrl} alt='' className='w-6 h-6 rounded-full object-cover'/>
+                            <h2 className='text-[13px]'>{reply?.author?.username}</h2>
+                            <span className='text-[11px] text-gray-500'>{timeAgo(reply?.createdAt)}</span>
+                        </div>
+                        <ExpandableText text={reply?.message} className='ml-8 text-gray-200'/>
+                    </div>
+                ))}
+            </div>}
 
         </div>
     )

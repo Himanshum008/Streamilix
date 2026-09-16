@@ -22,6 +22,7 @@ function AllShortsPage() {
                         channelName={short?.channel?.name}
                         id={short?._id}
                         views={short?.views}
+                        createdAt={short?.createdAt}
                         />
                     </div>
                 ))}

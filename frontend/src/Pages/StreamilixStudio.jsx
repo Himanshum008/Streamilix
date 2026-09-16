@@ -3,7 +3,7 @@ import { SiYoutubestudio } from 'react-icons/si'
 import { useSelector } from 'react-redux'
 import { Outlet, useNavigate } from 'react-router-dom'
 import Profile from '../components/Profile'
-import { FaChartBar, FaPlusCircle, FaTachometerAlt, FaVideo } from 'react-icons/fa'
+import { FaChartBar, FaPlusCircle, FaTachometerAlt, FaUser, FaUsers, FaVideo } from 'react-icons/fa'
 import { RiMoneyRupeeCircleFill } from 'react-icons/ri'
 
 function StreamilixStudio() {
@@ -18,8 +18,8 @@ function StreamilixStudio() {
         <header className='h-14 px-4 sm:px-6 flex items-center justify-between border-b 
         border-gray-800 bg-[#0f0f0f] shadow-md'>
             <div className='flex items-center gap-2 cursor-pointer' onClick={()=>navigate("/")}>
-                <SiYoutubestudio className='text-orange-500 w-7 h-7'/>
-                <h1 className='text-lg sm:text-xl font-bold tracking-wide text-white'
+                <SiYoutubestudio className='text-orange-500 w-5 h-5'/>
+                <h1 className='text-sm sm:text-xl font-bold tracking-wide text-white'
                 >Streamilix <span className='text-[#ffffff]'>Studio</span></h1>
 
             </div>
@@ -57,6 +57,13 @@ function StreamilixStudio() {
                   active={active}
                   setActive={setActive}
                   onClick={()=>navigate("/streamilixstudio/content")}
+                />
+                <SidebarItem
+                  icon={<FaUsers/>}
+                  text="Subscribers"
+                  active={active}
+                  setActive={setActive}
+                  onClick={()=>navigate("/streamilixstudio/subscribers")}
                 />
                 <SidebarItem
                   icon={<FaChartBar />}
@@ -110,10 +117,10 @@ function StreamilixStudio() {
               }}
             />
             <MobileNavItem
-              icon={<FaPlusCircle />}
-              text="Create"
+              icon={<FaUsers />}
+              text="Subscribers"
               onClick={()=>{
-                navigate("/create")
+                navigate("/streamilixstudio/subscribers")
               }}
             />
             <MobileNavItem

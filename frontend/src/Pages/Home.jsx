@@ -155,10 +155,17 @@ function Home() {
         if(ch.shorts?.length) channelShorts.push(...ch.shorts);
       })
 
+      const uniqueVideos = [...new Map(
+        [...videos, ...channelVideos].map((video) => [video?._id, video])
+      ).values()];
+      const uniqueShorts = [...new Map(
+        [...shorts, ...channelShorts].map((short) => [short?._id, short])
+      ).values()];
+
       setFilterData({
         ...result.data,
-        videos: [...videos, ...channelVideos],
-        shorts: [...shorts, ...channelShorts]
+        videos: uniqueVideos,
+        shorts: uniqueShorts
       })
       setLoading1(false)
       navigate("/")
@@ -249,8 +256,8 @@ function Home() {
 
           {/* left */}
           <div className='flex items-center gap-4'>
-            <button className='text-xl bg-[#272727] p-2 rounded-full md:inline hidden' onClick={()=>setSidebarOpen(!sidebarOpen)}
-            ><FaBars/></button>
+            <button className='text-xl bg-[#272727] p-2 rounded-full md:inline hidden hover:bg-orange-400' onClick={()=>setSidebarOpen(!sidebarOpen)}
+            ><FaBars className='cursor-pointer'/></button>
             <div className='flex items-center gap-1.25'>
               <img src={icon} alt="" className='w-7.5'/>
               <span className='text-white font-bold text-xl tracking-tight font-roboto'>Streamilix</span>
@@ -318,16 +325,16 @@ function Home() {
         </nav>
 
         <hr className='border-gray-800 my-3'/>
-        {sidebarOpen && <p className='text-sm text-gray-400 px-2'>Subcriptions</p>}
+        {sidebarOpen && <p className='text-sm text-gray-400 px-2'>Subscriptions</p>}
 
         <div className='space-y-1 mt-1'>
-          {subscribedChannels?.map((ch)=>(
-            <button key={ch?._id} onClick={()=>{setSelectedItem(ch?._id);navigate(`/channelpage/${ch?._id}`)}} 
+          {subscribedChannels?.map((channel)=>(
+            <button key={channel?._id} onClick={()=>{setSelectedItem(channel?._id);navigate(`/channelpage/${channel?._id}`)}} 
             className={`flex items-center ${sidebarOpen ? "gap-3 justify-start" : "justify-center"} w-full text-left 
-            cursor-pointer p-2 rounded-lg transition-5 ${selectedItem ===ch._id ? "bg-[#272727]" : "hover:bg-gray-800"}`}>
-              <img src={ch?.avatar} alt="" className='w-6 h-6 object-cover rounded-full border border-gray-700 
-              hover:scale-110 transition-transform duration-200'/>
-              {sidebarOpen && <span className='text-sm text-white truncate'>{ch?.name}</span>}
+            cursor-pointer p-2 rounded-lg transition-5 ${selectedItem === channel?._id ? "bg-[#272727]" : "hover:bg-gray-800"}`}>
+              <img src={channel?.avatar || icon} alt={`${channel?.name || "Channel"} logo`} className='w-8 h-8 object-cover rounded-full border border-gray-700 
+              hover:scale-110 transition-transform duration-200 text-lg'/>
+              {sidebarOpen && <span className='text-sm text-white truncate'>{channel?.name}</span>}
               </button>
           ))}
         </div>
@@ -353,10 +360,10 @@ function Home() {
             {loading1?<ClipLoader size={35} color='white'/>:""}</div>}
       
             {searchData && <SearchResults searchResults={searchData}/>}
-            {filterData && <FilterResults filterResults={filterData}/>}
-
-            {userData ? <RecommendedContent/> : <><AllVideosPage/>
-            <AllShortsPage/></>}
+            {filterData ? <FilterResults filterResults={filterData}/> : (
+              userData ? <RecommendedContent/> : <><AllVideosPage/>
+              <AllShortsPage/></>
+            )}
             
           </div>
           </>)}

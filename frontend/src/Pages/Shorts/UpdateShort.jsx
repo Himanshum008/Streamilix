@@ -8,11 +8,11 @@ import { showCustomAlert } from '../../components/CustomAlert.jsx'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ClipLoader } from 'react-spinners'
 import { setAllShortsData } from '../../redux/contentSlice.js'
-import { setChannelData } from '../../redux/userSlice.js'
+import { setChannelData, setHistoryShort } from '../../redux/userSlice.js'
 
 function UpdateShort() {
     const {shortId} = useParams()
-  const {channelData} = useSelector(state=>state.user)
+  const {channelData, historyShort} = useSelector(state=>state.user)
   const {allShortsData} = useSelector(state=>state.content)
 
   const [title, setTitle] = useState("")
@@ -81,6 +81,7 @@ function UpdateShort() {
 
             const updatedAllShorts = allShortsData.filter((s) => s._id !== shortId);
             dispatch(setAllShortsData(updatedAllShorts));
+            dispatch(setHistoryShort(historyShort?.filter((item) => item?.contentId?._id !== shortId) || []));
 
             const updatedChannel = {
                 ...channelData,

@@ -1,6 +1,4 @@
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { serverUrl } from '../App.jsx'
 import { SiYoutubeshorts } from 'react-icons/si'
 import ShortCard from '../components/ShortCard.jsx'
 import { GoVideo } from 'react-icons/go'
@@ -24,13 +22,15 @@ const getVideoDuration = (url, callback) => {
 
 function HistoryContent() {
     const {historyVideo, historyShort} = useSelector(state=>state.user)
+    const validHistoryVideo = historyVideo?.filter((item) => item?.contentId)
+    const validHistoryShort = historyShort?.filter((item) => item?.contentId)
 
     const [duration, setDuration] = useState("")
 
     useEffect((
             ()=>{
                 if(Array.isArray(historyVideo) && historyVideo.length > 0) {
-                                        historyVideo.forEach((v)=>{
+                                        historyVideo.filter((item) => item?.contentId).forEach((v)=>{
                                                 const videos = v?.contentId
                                                 if (!videos?.videoUrl) return;
 
@@ -42,7 +42,7 @@ function HistoryContent() {
             }
         ),[historyVideo])
 
-    if ((!historyVideo && !historyShort) || ((historyVideo?.length || 0) === 0 && (historyShort?.length || 0) === 0)) {
+    if ((!validHistoryVideo && !validHistoryShort) || ((validHistoryVideo?.length || 0) === 0 && (validHistoryShort?.length || 0) === 0)) {
         return (
             <div className='flex justify-center items-center h-[70vh] text-gray-400 text-xl'>
                 No Content Found
@@ -55,13 +55,13 @@ function HistoryContent() {
   return (
     <div className='px-6 py-4 min-h-screen mt-12.5 lg:mt-5'>
 
-        {(historyShort?.length || 0) > 0 && (
+        {(validHistoryShort?.length || 0) > 0 && (
             <>
             <h2 className='text-2xl font-bold mb-6 pt-12.5 border-b border-gray-300 pb-2 flex items-center gap-1'>
                 <SiYoutubeshorts className='w-7 h-7 text-orange-600'/>Shorts History
             </h2>
             <div className='flex gap-4 overflow-x-auto pb-4 scrollbar-hide'>
-                {historyShort?.map((s)=>{
+                {validHistoryShort?.map((s)=>{
                     const short = s?.contentId
                     return(
                     <div key={s?._id} className='shrink-0'>
@@ -72,6 +72,7 @@ function HistoryContent() {
                         views={short?.views}
                         id={short?._id}
                         avatar={short?.channel?.avatar}
+                        createdAt={short?.createdAt}
                         />
                     </div>)
                 })}
@@ -79,13 +80,13 @@ function HistoryContent() {
             </>
         )}
 
-        {(historyVideo?.length || 0) > 0 && (
+        {(validHistoryVideo?.length || 0) > 0 && (
             <>
             <h2 className='text-2xl font-bold mb-6 pt-12.5 border-b border-gray-300 pb-2 flex items-center gap-1'>
                 <GoVideo className='w-7 h-7 text-orange-600'/>Videos History
             </h2>
             <div className='flex flex-wrap gap-6'>
-                {historyVideo?.map((v)=>{
+                {validHistoryVideo?.map((v)=>{
                     const video = v?.contentId
                     return(
                     <div key={v?._id} className='shrink-0'>
@@ -98,6 +99,7 @@ function HistoryContent() {
                         channelName={video?.channel?.name}
                         id={video?._id}
                         views={video?.views}
+                        createdAt={video?.createdAt}
                         />
                     </div>)
 })}

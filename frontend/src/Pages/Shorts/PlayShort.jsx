@@ -15,16 +15,99 @@ import Description from '../../components/Description.jsx'
 import axios from 'axios'
 import { serverUrl } from '../../App.jsx'
 import { ClipLoader } from 'react-spinners'
+import { timeAgo } from '../../../../backend/src/utils/timeAgo.js'
 
 const IconButton = ({icon:Icon, active, label, count, onClick})=>(
     <button className='flex flex-col items-center' onClick={onClick}>
         <div className={`${active ? "bg-white" : "bg-[#00000065] border border-gray-700"} 
         p-3 rounded-full hover:bg-gray-700 transition`}>
-            <Icon size={20} className={`${active ? "text-black" : "text-white"}`}/>
+            <Icon size={15} className={`${active ? "text-black" : "text-white"}`}/>
         </div>
         <span className='text-xs mt-1 flex gap-1'>{count !== undefined && `${count}`} <span>{label}</span></span>
     </button>
 )
+
+const ExpandableText = ({text, className = ""}) => {
+  const textRef = useRef(null)
+  const [expanded, setExpanded] = useState(false)
+  const [hasOverflow, setHasOverflow] = useState(false)
+
+  useEffect(() => {
+    const element = textRef.current
+    if (!element) return
+
+    setHasOverflow(element.scrollHeight > element.clientHeight)
+  }, [text])
+
+  return (
+    <div className={className}>
+      <p
+        ref={textRef}
+        className={`whitespace-pre-line ${expanded ? "" : "line-clamp-1"}`}
+        style={{overflowWrap: "anywhere"}}
+      >
+        {text}
+      </p>
+      {hasOverflow && (
+        <button
+          className='text-xs text-blue-400 hover:underline'
+          onClick={() => setExpanded((previous) => !previous)}
+        >
+          {expanded ? "show less" : "show more"}
+        </button>
+      )}
+    </div>
+  )
+}
+
+const ExpandableTags = ({tags = []}) => {
+  const tagsRef = useRef(null)
+  const [expanded, setExpanded] = useState(false)
+  const [hasOverflow, setHasOverflow] = useState(false)
+
+  useEffect(() => {
+    const element = tagsRef.current
+    if (!element) return
+
+    setHasOverflow(element.scrollHeight > element.clientHeight)
+  }, [tags])
+
+  return (
+    <div>
+      <div
+        ref={tagsRef}
+        className={`flex flex-wrap gap-1 overflow-hidden ${expanded ? "" : "max-h-7"}`}
+      >
+        {tags.map((tag) => (
+          <span key={tag} className='bg-gray-800 text-gray-200 text-xs px-2 py-1 rounded-full'>
+            {tag}
+          </span>
+        ))}
+      </div>
+      {hasOverflow && (
+        <button
+          className='text-xs text-blue-400 hover:underline'
+          onClick={() => setExpanded((previous) => !previous)}
+        >
+          {expanded ? "show less" : "show more"}
+        </button>
+      )}
+    </div>
+  )
+}
+
+const sortCommentsByNewest = (comments = []) => [...comments]
+  .map((comment) => ({
+    ...comment,
+    replies: [...(comment?.replies || [])].sort(
+      (firstReply, secondReply) =>
+        new Date(secondReply?.createdAt || 0) - new Date(firstReply?.createdAt || 0)
+    )
+  }))
+  .sort(
+    (firstComment, secondComment) =>
+      new Date(secondComment?.createdAt || 0) - new Date(firstComment?.createdAt || 0)
+  )
 
 function PlayShort() {
 const {shortId} = useParams()
@@ -40,7 +123,7 @@ const {shortId} = useParams()
   const [viewedShort, setViewedShort] = useState([])
   const [comments, setComments] = useState([])
   const [newComment, setNewComment] = useState("")
-  const [reply, setReply] = useState(false)
+  const [replyCommentId, setReplyCommentId] = useState(null)
   const [replyText, setReplyText] = useState({})
 
   useEffect(()=>{
@@ -180,7 +263,7 @@ const {shortId} = useParams()
             const result = await axios.post(`${serverUrl}/api/content/short/${shortId}/add-comment` , 
                 {message:newComment} , {withCredentials:true})
                 setComments((prev)=>({
-                  ...prev , [shortId]: result.data?.comments || [],
+                  ...prev , [shortId]: sortCommentsByNewest(result.data?.comments),
                 }))
                 console.log(result.data?.comments);
                 setNewComment("")
@@ -196,7 +279,7 @@ const {shortId} = useParams()
             const result = await axios.post(`${serverUrl}/api/content/short/${shortId}/${commentId}/add-reply` , 
                 {message:replyText} , {withCredentials:true})
                 setComments((prev)=>({
-                  ...prev , [shortId]: result.data?.comments || [],
+                  ...prev , [shortId]: sortCommentsByNewest(result.data?.comments),
                 }))
                 setReplyText((prev)=>({
                         ...prev , [commentId]: ""
@@ -223,12 +306,27 @@ const {shortId} = useParams()
           if (shortId) addHistory();
       },[shortId])
 
+      const isChannelSubscribed = (channel) => {
+    if (!channel?.subscribers || !userData?._id) {
+        return false
+    }
+
+    return channel.subscribers.some((sub) => {
+      const subscriberId = sub?.user?._id?.toString()
+        || sub?.user?.toString()
+        || sub?._id?.toString()
+        || sub?.toString()
+
+        return subscriberId === userData._id.toString()
+    })
+}
+
   return (
     <div className='h-[calc(100vh-3.75rem)] w-full overflow-y-scroll snap-y snap-mandatory'>
       {shortList.map((short , index)=>(
-        <div key={short?._id} className='min-h-full w-full flex items-start justify-center pt-9
+        <div key={short?._id} className='min-h-full w-full flex items-start justify-center pt-12
         snap-start'>
-          <div className='relative h-[calc(100vh-3.75rem)] w-auto aspect-9/16 bg-black rounded-2xl overflow-hidden shadow-xl border 
+          <div className='relative h-[calc(100vh-8rem)] md:h-[calc(100vh-7rem)] w-full md:w-auto aspect-9/16 bg-black rounded-2xl overflow-hidden shadow-xl border 
           border-gray-700 cursor-pointer' onClick={()=>togglePlay(index)}>
             <video
             ref={(el)=>(shortRefs.current[index] = el)}
@@ -261,25 +359,17 @@ const {shortId} = useParams()
               <span className='text-sm text-gray-300' onClick={()=>navigate(`/channelpage/${short?.channel?._id}`)}>
                 @{short?.channel?.name?.toLowerCase()}</span>
               <div>
-              <button className={`${short?.channel?.subscribers?.includes(userData?._id) ? 
+              <button className={`${isChannelSubscribed(short?.channel) ? 
               "bg-[#000000a1] text-white border border-gray-700" : "bg-white text-black"} 
               text-xs px-2.5 py-2.5 rounded-full cursor-pointer`}
               onClick={()=>handleSubscribe(short?.channel?._id)} disabled={loading}>
                 {loading ? <ClipLoader size={20} color='gray'/> : 
-                short?.channel?.subscribers?.includes(userData?._id)?"Subscribe" : "Subscribed"}</button></div>
+                isChannelSubscribed(short?.channel)?"Subscribed" : "Subscribe"}</button></div>
             </div>
             <div className='flex items-center justify-start'>
               <h3 className='font-bold text-lg line-clamp-2'>{short?.title}</h3>
             </div>
-            <div className=''>
-              {
-                short?.tags.map((tag)=>(
-                  <span key={index} className='bg-gray-800 text-gray-200 text-xs px-2 py-1 rounded-full'>
-                    {tag}
-                  </span>
-                ))
-              }
-            </div>
+            <ExpandableTags tags={short?.tags}/>
             <Description text={short?.description}/>
           </div>
           <div className='absolute right-3 bottom-28 flex flex-col items-center gap-2 text-white'>
@@ -288,7 +378,7 @@ const {shortId} = useParams()
             <IconButton icon={FaThumbsDown} label={"Dislikes"}
             active={short?.dislikes?.includes(userData._id)} count={short?.dislikes?.length} onClick={()=>toggleDislike(short?._id)}/>
             <IconButton icon={FaComment} label={"Comment"} onClick={()=>{setOpenComment(!openComment);
-              setComments((prev)=>({...prev, [short._id] :short.comments}))}}/>
+              setComments((prev)=>({...prev, [short._id] :sortCommentsByNewest(short.comments)}))}}/>
             <IconButton icon={FaDownload} label={"Download"} onClick={()=>{
             const link = document.createElement("a"); link.href = short?.shortUrl; 
             link.download = `${short?.title}.mp4`; link.click();}}/>   
@@ -299,15 +389,15 @@ const {shortId} = useParams()
           {
             openComment && (<div className='absolute bottom-0 left-0 right-0 h-[60%] bg-black/85 
             text-white p-4 rounded-t-2xl overflow-y-auto'>
-              <div className='flex justify-between items-center mb-3'>
+              <div className='top-0 z-10 flex justify-between items-center bg-black/85 py-2 mb-3 backdrop-blur-md'>
                 <h3 className='font-bold text-lg'>Comments</h3>
-                <button ><FaArrowDown size={20} onClick={()=>setOpenComment(!openComment)}/></button>
+                <button ><FaArrowDown size={20} onClick={()=>setOpenComment(!openComment)} className='cursor-pointer hover:bg-orange-400 rounded-xl'/></button>
               </div>
               <div className='mt-4 flex gap-2'>
                 <input type="text" placeholder='Add a comment....' className='flex-1 bg-gray-900 text-white p-2 rounded' 
                 onChange={(e)=>setNewComment(e.target.value)} value={newComment}/>
-                <button className='bg-black px-4 py-2 border border-gray-700 rounded-xl' 
-                onClick={()=>handleAddComment(short?._id)}>Post</button>
+                <button className='shrink-0 h-10 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg' disabled={loading}
+                onClick={handleAddComment}>{loading ? <ClipLoader size={20} color='black'/>:"Post"}</button>
               </div>
               <div className='space-y-3 mt-4'>
                 {comments[short._id]?.length > 0 ?
@@ -315,12 +405,14 @@ const {shortId} = useParams()
                   <div key={comment?._id} className='bg-gray-800/40 p-2 rounded-lg'>
                     <div className='flex items-center gap-2 mb-1'>
                       <img src={comment?.author?.photoUrl} alt="" className='w-6 h-6 rounded-full'/>
-                      <h3 className='text-sm font-semibold'>{comment?.author?.username}</h3>
+                      <h3 className='text-sm font-semibold'>{comment?.author?.username} . {timeAgo(comment?.createdAt)}</h3>
                     </div>
-                    <p className='text-sm ml-8'>{comment?.message}</p>
-                    <button className='text-md text-orange-500' onClick={()=>setReply(!reply)}>reply</button>
+                    <ExpandableText text={comment?.message} className='ml-8 text-sm'/>
+                    <button className='text-md text-orange-500' onClick={()=>setReplyCommentId(
+                      replyCommentId === comment?._id ? null : comment?._id
+                    )}>reply</button>
 
-                    {reply && <div className='mt-2 ml-8 flex gap-2'>
+                    {replyCommentId === comment?._id && <div className='mt-2 ml-8 flex gap-2'>
                       <input type="text" className='w-full text-white text-sm p-2 rounded' placeholder='Add a reply...' 
                       onChange={(e)=>setReplyText((prev)=>({
                         ...prev , [comment._id]: e.target.value
@@ -332,17 +424,17 @@ const {shortId} = useParams()
                         ...prev , [comment._id]: ""}))}}>Reply</button>
                     </div>
                     }
-                    <div className='ml-5 mt-2 space-y-2'>
+                    {replyCommentId === comment?._id && <div className='ml-5 mt-2 space-y-2'>
                       {comment?.replies.map((reply)=>(
                         <div key={reply?._id} className='bg-gray-800/40 p-2 rounded-lg'>
                     <div className='flex items-center gap-2 mb-1'>
                       <img src={reply?.author?.photoUrl} alt="" className='w-6 h-6 rounded-full'/>
-                      <h3 className='text-sm font-semibold'>{reply?.author?.username}</h3>
+                      <h3 className='text-sm font-semibold'>{reply?.author?.username} . {timeAgo(reply?.createdAt)}</h3>
                     </div>
-                    <p className='text-sm ml-8'>{reply?.message}</p>
+                    <ExpandableText text={reply?.message} className='ml-8 text-sm'/>
                     </div>
                       ))}
-                    </div>
+                    </div>}
                   </div>
                 )) : <p className='text-sm text-gray-400'>No comments yet.</p>}
               </div>

@@ -32,8 +32,9 @@ function ChannelPage() {
     const [channel, setChannel] = useState(channelData)
     const [loading, setLoading] = useState(false)
     const [activeTab, setActiveTab] = useState("Videos")
-    const [isSubscribed, setIsSubscribed] = useState(channel?.subscribers?.some((sub)=>sub?._id?.toString() 
-        === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
+    const [isSubscribed, setIsSubscribed] = useState(
+    channel?.subscribers?.some((sub) =>
+        sub?.user?._id?.toString() === userData?._id?.toString()))
 
     const [duration, setDuration] = useState("")
 
@@ -58,7 +59,7 @@ function ChannelPage() {
             const result = await axios.post(serverUrl + "/api/user/togglesubscribe" , 
                 {channelId:channel._id} , {withCredentials:true})
                 setChannel((prev)=>({
-                    ...prev , subscribers:result.data.subscribers || prev.subscribers
+                    ...prev , subscribers:result.data?.subscribers || prev.subscribers
                 }))
                 setLoading(false)
                 console.log(result.data);
@@ -69,9 +70,10 @@ function ChannelPage() {
         }
     }
 
-    useEffect(()=>{setIsSubscribed(channel?.subscribers?.some((sub)=>sub._id?.toString() 
-            === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
-        }),[channel?.subscribers , userData?._id]
+    useEffect(() => {
+    setIsSubscribed(channel?.subscribers?.some((sub) =>
+        sub?.user?._id?.toString() === userData?._id?.toString()));
+}, [channel?.subscribers, userData?._id]);
     
 
   return (
@@ -102,7 +104,7 @@ function ChannelPage() {
             <p className='text-gray-300 text-sm mt-2 line-clamp-2'>{channel?.category}</p>
             
         </div>
-        <button className={`px-5 py-2 rounded-4xl border border-gray-600 ml-5 text-md 
+        <button className={`w-full sm:w-auto px-5 py-2 rounded-4xl border border-gray-600 ml-0 sm:ml-5 text-md
         ${isSubscribed ? "bg-black text-white hover:bg-orange-600 hover:text-black ": 
         "bg-white text-black hover:bg-orange-600 hover:text-black"} `} onClick={handleSubscribe} disabled={loading}>
         {loading?<ClipLoader size={20} color='orange4'/>: isSubscribed ? "Subscribed" : "Subscribe"}</button>
@@ -131,6 +133,7 @@ function ChannelPage() {
             title={v.title}
             channelName={channel.name}
             views={v.views}
+            createdAt={v?.createdAt}
             />
         ))}
     </div>
@@ -147,6 +150,7 @@ function ChannelPage() {
                 channelName={short.name}
                 views={short.views}
                 avatar={channel.avatar}
+                createdAt={short?.createdAt}
                 />
             ))}
         </div>

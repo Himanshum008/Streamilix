@@ -7,11 +7,11 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { ClipLoader } from 'react-spinners'
 import { setAllVideosData } from '../../redux/contentSlice'
-import { setChannelData } from '../../redux/userSlice'
+import { setChannelData, setHistoryVideo } from '../../redux/userSlice'
 
 function UpdateVideos() {
     const {videoId} = useParams()
-  const {channelData} = useSelector(state=>state.user)
+  const {channelData, historyVideo} = useSelector(state=>state.user)
   const {allVideosData} = useSelector(state=>state.content)
 
   const [thumbnail, setThumbnail] = useState(null)
@@ -74,6 +74,7 @@ function UpdateVideos() {
             await axios.delete(`${serverUrl}/api/content/delete-video/${videoId}` , {withCredentials:true})
 
             dispatch(setAllVideosData(allVideosData.filter((v)=>v._id !== videoId)));
+            dispatch(setHistoryVideo(historyVideo?.filter((item) => item?.contentId?._id !== videoId) || []));
 
             showCustomAlert("Video deleted successfully");
             navigate("/streamilixstudio/content");

@@ -15,17 +15,17 @@ import {
 
 const calculateRevenue = (views, type) => {
   if (type === "video") {
-    if (views < 10000) return 0;
+    // ₹50 for every 1,000 video views
     return Math.floor(views / 1000) * 50;
   }
 
-
- if (type === "short") {
-    if (views < 10000) return 0;
-    return Math.floor(views / 1000) * 50;
+  if (type === "short") {
+    // ₹50 for every 10,000 short views
+    return Math.floor(views / 10000) * 50;
   }
+
   return 0;
-}
+};
 const Revenue = () => {
   const {channelData} = useSelector((state)=>state.user)
 

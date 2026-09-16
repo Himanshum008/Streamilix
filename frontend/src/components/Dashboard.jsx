@@ -46,6 +46,7 @@ function Dashboard() {
                 <AnalyticsCard
                 label="Subscribers"
                 value={`+${channelData.subscribers?.length || 0}`}
+                onClick={() => navigate("/streamilixstudio/subscribers")}
                 />
             </div>
         </div>
@@ -60,7 +61,7 @@ function Dashboard() {
 
                 <div className='space-y-4'>
                   {
-                    (channelData?.videos).slice().reverse().slice(0,5).map((v , idx) => (<ContentCard key={idx} content={v} 
+                    (channelData?.videos || []).slice().reverse().slice(0,5).map((v , idx) => (<ContentCard key={idx} content={v} 
                       onClick={()=>navigate(`/playvideo/${v?._id}`)}/>))
                   }
                 </div>
@@ -75,8 +76,8 @@ function Dashboard() {
 
                 <div className='space-y-4'>
                   {
-                    (channelData?.shorts).slice().reverse().slice(0,5).map((s , idx) => (<ContentCard1 key={idx} content={s} 
-                      onClick={()=>navigate(`/playshort/${v?._id}`)}/>))
+                    (channelData?.shorts || []).slice().reverse().slice(0,5).map((s , idx) => (<ContentCard1 key={idx} content={s} 
+                      onClick={()=>navigate(`/playshort/${s?._id}`)}/>))
                   }
                 </div>
             </div>
@@ -88,7 +89,7 @@ function Dashboard() {
 
 function AnalyticsCard ({label, value, onClick}) {
     return (
-        <div className='bg-[#0f0f0f] border border-gray-700 rounded-lg p-3 sm:p-4 shadow hover:shadow-lg:transition'
+        <div className='bg-[#0f0f0f] border border-gray-700 rounded-lg p-3 sm:p-4 shadow hover:shadow-lg transition'
         onClick={onClick}>
             <div className='flex items-center gap-2 text-gray-400 text-xs sm:text-sm mb-2'>
                 {label}

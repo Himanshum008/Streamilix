@@ -1,6 +1,7 @@
 import uploadOnCloudinary from "../config/cloudinary.js"
 import Channel from "../models/channel.model.js"
 import Short from "../models/short.model.js"
+import User from "../models/user.model.js"
 
 
 export const CreateShort = async (req , res) => {
@@ -290,6 +291,11 @@ export const deleteShort = async (req,res) => {
         await Channel.findByIdAndUpdate(short.channel, {
             $pull: {shorts: short._id},
         })
+
+        await User.updateMany(
+        { "history": {$elemMatch: {contentId: short._id, contentType: "Short"}} },
+        {$pull: {history: {contentId: short._id, contentType: "Short"}}}
+        );
 
         await Short.findByIdAndDelete(shortId);
         return res.status(200).json({message: "Short deleted successfully"})

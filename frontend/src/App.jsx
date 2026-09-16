@@ -39,6 +39,7 @@ import StreamilixStudio from './Pages/StreamilixStudio.jsx'
 import UpdateVideos from './Pages/Videos/UpdateVideos.jsx'
 import UpdateShort from './Pages/Shorts/UpdateShort.jsx'
 import UpdatePlaylist from './Pages/Playlist/UpdatePlaylist.jsx'
+import Subscribers from './components/Subscribers.jsx'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -88,16 +89,19 @@ function App() {
     <Route path='/subscription' element={<ProtectRoute userData={userData}><Subscription /></ProtectRoute>} />
     <Route path='/history' element={<ProtectRoute userData={userData}><HistoryContent /></ProtectRoute>} />
   </Route>
+  
   <Route path='/signup' element={<SignUp />} />
   <Route path='/signin' element={<SignIn />} />
   <Route path='/forgetpassword' element={<ForgetPassword />} />
   <Route path='/home' element={<Home />} />
+  <Route path='/home/streamilixstudio/dashboard' element={<Navigate to='/streamilixstudio/dashboard' replace />} />
   <Route path='/createchannel' element={<ProtectRoute userData={userData}><CreateChannel /></ProtectRoute>} />
   <Route path='/playvideo/:videoId' element={<ProtectRoute userData={userData}><PlayVideo /></ProtectRoute>} />
 
 
   <Route path='/streamilixstudio' element={<ProtectRoute userData={userData}><StreamilixStudio /></ProtectRoute>} >
     <Route path='/streamilixstudio/dashboard' element={<ProtectRoute userData={userData}><Dashboard /></ProtectRoute>} />
+    <Route path='/streamilixstudio/subscribers' element={<ProtectRoute userData={userData}><Subscribers /></ProtectRoute>}/>
     <Route path='/streamilixstudio/analytics' element={<ProtectRoute userData={userData}><Analytics /></ProtectRoute>} />
     <Route path='/streamilixstudio/content' element={<ProtectRoute userData={userData}><Content /></ProtectRoute>} />
     <Route path='/streamilixstudio/revenue' element={<ProtectRoute userData={userData}><Revenue /></ProtectRoute>} />

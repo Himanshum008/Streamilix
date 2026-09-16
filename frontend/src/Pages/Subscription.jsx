@@ -82,6 +82,7 @@ function Subscription() {
                         views={short?.views}
                         id={short?._id}
                         avatar={short?.channel?.avatar}
+                        createdAt={short?.createdAt}
                         />
                     </div>
                 ))}
@@ -106,6 +107,7 @@ function Subscription() {
                                 channelName={video?.channel?.name}
                                 id={video?._id}
                                 views={video?.views}
+                                createdAt={video?.createdAt}
                                 />
                             </div>
                         ))}
@@ -126,6 +128,7 @@ function Subscription() {
                                     title={pl.title}
                                     videos={pl.videos}
                                     savedBy={pl.savedBy}
+                                    createdAt={pl?.createdAt}
                                     />
                                 ))}
                             </div>

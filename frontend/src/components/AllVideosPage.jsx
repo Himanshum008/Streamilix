@@ -47,6 +47,7 @@ function AllVideosPage() {
                 channelName={video?.channel?.name}
                 id={video?._id}
                 views={video?.views}
+                createdAt={video?.createdAt}
                 />
             ))
         }

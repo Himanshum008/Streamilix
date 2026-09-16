@@ -12,6 +12,8 @@ function ForgetPassword() {
   const [otp,setOtp] = useState("")
   const [newPassword,setNewPassword] = useState("")
   const [confirmPassword,setConfirmPassword] = useState("")
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -115,14 +117,26 @@ function ForgetPassword() {
           <form action="" className='space-y-4' onSubmit={(e)=>e.preventDefault()}>
             <div>
               <label htmlFor="newpass" className='block text-sm mb-1'>New Password :</label>
-              <input type="text" id='newpass' className='mt-1 w-full px-4 py-3 border border-gray-600 rounded-md bg-transparent
-              text-white focus:outline-none focus:ring-2 focus:ring-orange-500' required 
-              onChange={(e)=>setNewPassword(e.target.value)} value={newPassword}/>
+              <div className='relative'>
+                <input type={showNewPassword ? "text" : "password"} id='newpass' className='mt-1 w-full px-4 py-3 pr-12 border border-gray-600 rounded-md bg-transparent
+                text-white focus:outline-none focus:ring-2 focus:ring-orange-500' required 
+                onChange={(e)=>setNewPassword(e.target.value)} value={newPassword}/>
+                <button type='button' className='absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 hover:text-white'
+                onClick={()=>setShowNewPassword((previous)=>!previous)}>
+                  {showNewPassword ? "Hide" : "Show"}
+                </button>
+              </div>
 
               <label htmlFor="conpass" className='block text-sm mb-1 mt-5'>Confirm Password :</label>
-              <input type="text" id='conpass' aria-label='confirm password' className='mt-1 w-full px-4 py-3 border border-gray-600 rounded-md bg-transparent
-              text-white focus:outline-none focus:ring-2 focus:ring-orange-500 mb-5' required 
-              onChange={(e)=>setConfirmPassword(e.target.value)} value={confirmPassword}/>
+              <div className='relative'>
+                <input type={showConfirmPassword ? "text" : "password"} id='conpass' aria-label='confirm password' className='mt-1 w-full px-4 py-3 pr-12 border border-gray-600 rounded-md bg-transparent
+                text-white focus:outline-none focus:ring-2 focus:ring-orange-500 mb-5' required 
+                onChange={(e)=>setConfirmPassword(e.target.value)} value={confirmPassword}/>
+                <button type='button' className='absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 hover:text-white'
+                onClick={()=>setShowConfirmPassword((previous)=>!previous)}>
+                  {showConfirmPassword ? "Hide" : "Show"}
+                </button>
+              </div>
             </div>
             <button className='w-full bg-orange-600 hover:bg-orange-700 transition py-2 px-4 rounded-md font-medium'
             disabled={loading} onClick={handleResetPassword}>{loading ? <ClipLoader color='black' size={20}/>:"Reset Password"}</button>

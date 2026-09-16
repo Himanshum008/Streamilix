@@ -119,7 +119,10 @@ export const getChannelData = async (req, res) => {
         .populate("Owner")
         .populate("videos")
         .populate("shorts")
-        .populate("subscribers")
+        .populate({
+            path: "subscribers.user",
+            select: "username photoUrl email"
+        })
         .populate({
             path: "communityPosts",
             populate: {
@@ -151,41 +154,84 @@ export const getChannelData = async (req, res) => {
 
 export const toggleSubscribe = async (req, res) => {
     try {
-        const {channelId} = req.body
-        const userId = req.userId
+        const { channelId } = req.body;
+        const userId = req.userId;
 
         if (!channelId) {
-            return res.status(400).json({message:"Channel Id is required"})
+            return res.status(400).json({
+                message: "Channel Id is required"
+            });
         }
-        const channel = await Channel.findById(channelId)
+
+        if (!userId) {
+            return res.status(401).json({
+                message: "User is not authenticated"
+            });
+        }
+
+        const channel = await Channel.findById(channelId);
+
         if (!channel) {
-            return res.status(400).json({message:"Channel is not found"})
+            return res.status(404).json({
+                message: "Channel is not found"
+            });
         }
-        const isSubscribed = channel?.subscribers?.some(
-            subscriber => subscriber.toString() === userId.toString()
-        )
 
-        if (isSubscribed) {
-            channel?.subscribers.pull(userId)
-        }else {
-            channel?.subscribers.push(userId)
+        channel.subscribers = channel.subscribers.filter(
+            (subscriber) => subscriber.user
+        );
+
+        const existingSubscriber = channel.subscribers.find(
+            (subscriber) =>
+                subscriber.user.toString() === userId.toString()
+        );
+
+        if (existingSubscriber) {
+
+            // Unsubscribe
+            channel.subscribers.pull(existingSubscriber._id);
+
+        } else {
+
+            // Subscribe
+            channel.subscribers.push({
+                user: userId,
+                subscribedAt: new Date()
+            });
         }
-        await channel.save()
 
-        const updatedChannel = await Channel.findById(channelId).populate("Owner")
-        .populate("videos").populate("shorts")
-        return res.status(200).json(updatedChannel)
+        await channel.save();
+
+        const updatedChannel = await Channel.findById(channelId)
+            .populate("Owner")
+            .populate("videos")
+            .populate("shorts")
+            .populate({
+                path: "subscribers.user",
+                select: "username photoUrl"
+            });
+
+        return res.status(200).json(updatedChannel);
+
     } catch (error) {
-        return res.status(404).json({message: ` Failed to toggleSubscribe ${error}`})
+
+        console.error("toggleSubscribe error:", error);
+
+        return res.status(500).json({
+            message: `Failed to toggleSubscribe ${error}`
+        });
     }
-}
+};
 
 export const getAllChannelData = async (req, res) => {
     try {
         const channels = await Channel.find().populate("Owner")
         .populate("videos")
         .populate("shorts")
-        .populate("subscribers")
+        .populate({
+            path: "subscribers.user",
+            select: "username photoUrl email"
+        })
         .populate({
             path: "communityPosts",
             populate: [
@@ -227,7 +273,7 @@ export const getSubscribedData = async (req,res) => {
     try {
         const userId = req.userId
 
-        const subscribedChannels = await Channel.find({subscribers:userId})
+        const subscribedChannels = await Channel.find({"subscribers.user": userId})
         .populate({
             path: "videos",
             populate: { path: "channel", select: "name avatar" }
@@ -238,11 +284,13 @@ export const getSubscribedData = async (req,res) => {
         })
         .populate({
             path: "playlists",
-            populate: { path: "channel", select: "name avatar" },
-            populate : {
-            path: "videos",
-            populate: { path: "channel" }
-        }
+            populate: [
+                { path: "channel", select: "name avatar" },
+                {
+                    path: "videos",
+                    populate: { path: "channel", select: "name avatar" }
+                }
+            ]
         })
         .populate({
             path: "communityPosts",
@@ -252,10 +300,6 @@ export const getSubscribedData = async (req,res) => {
                 {path: "comments.replies.author", select: "username photoUrl email"},
             ]
     })
-
-        if (!subscribedChannels || subscribedChannels.length === 0) {
-            return res.status(404).json({message: "Failed to find Subscribed Channels"})
-        }
 
         const videos = subscribedChannels.flatMap((ch => ch.videos))
         const shorts = subscribedChannels.flatMap((ch => ch.shorts))
@@ -426,3 +470,126 @@ export const getRecommendedContent = async (req, res) => {
         return res.status(500).json({message: `Failed: ${error.message}`})
     }
 }
+
+
+export const getChannelSubscribers = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+        if (!userId) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            });
+        }
+
+        // Find channel owned by logged-in user
+        const channel = await Channel.findOne({
+            Owner: userId
+        })
+            .populate({
+                path: "subscribers.user",
+                select: "username photoUrl"
+            })
+            .populate({
+                path: "videos",
+                select: "_id"
+            })
+            .populate({
+                path: "shorts",
+                select: "_id"
+            });
+
+        if (!channel) {
+            return res.status(404).json({
+                message: "Channel not found"
+            });
+        }
+
+        // IDs of videos uploaded by this channel
+        const channelVideoIds = channel.videos.map(
+            (video) => video._id.toString()
+        );
+
+        // IDs of shorts uploaded by this channel
+        const channelShortIds = channel.shorts.map(
+            (short) => short._id.toString()
+        );
+
+        const subscribers = await Promise.all(
+            channel.subscribers.map(async (subscriber) => {
+
+                const user = subscriber.user;
+
+                if (!user) {
+                    return null;
+                }
+
+                // Get user's watch history
+                const subscriberData = await User.findById(user._id)
+                    .select("history")
+                    .lean();
+
+                const history = subscriberData?.history || [];
+
+                let videosWatched = 0;
+                let shortsWatched = 0;
+
+                history.forEach((item) => {
+
+                    const contentId =
+                        item.contentId?._id ||
+                        item.contentId;
+
+                    if (!contentId) {
+                        return;
+                    }
+
+                    const id = contentId.toString();
+
+                    // Video watched
+                    if (channelVideoIds.includes(id)) {
+                        videosWatched++;
+                    }
+
+                    // Short watched
+                    if (channelShortIds.includes(id)) {
+                        shortsWatched++;
+                    }
+                });
+
+                return {
+                    _id: user._id,
+                    username: user.username,
+                    photoUrl: user.photoUrl,
+
+                    videosWatched,
+                    shortsWatched,
+
+                    subscribedAt: subscriber.subscribedAt
+                };
+            })
+        );
+
+        const validSubscribers = subscribers.filter(
+            (subscriber) => subscriber !== null
+        );
+
+        return res.status(200).json({
+            success: true,
+            subscribers: validSubscribers,
+            totalSubscribers: validSubscribers.length
+        });
+
+    } catch (error) {
+
+        console.error(
+            "getChannelSubscribers error:",
+            error
+        );
+
+        return res.status(500).json({
+            message: "Failed to fetch subscribers",
+            error: error.message
+        });
+    }
+};

@@ -21,7 +21,7 @@ function Content() {
     try {
       await axios.delete(`${serverUrl}/api/content/delete-post/${postId}` , {withCredentials:true})
 
-      const updatedPosts = channelData.communityPosts.filter(
+      const updatedPosts = (channelData?.communityPosts || []).filter(
         (p) => p._id !== postId
       )
       dispatch(setChannelData({...channelData, communityPosts: updatedPosts}));
@@ -79,7 +79,7 @@ function Content() {
           </div>
 
           <div className='grid gap-4 md:hidden'>
-            {channelData.videos?.map((v)=>(
+            {channelData?.videos?.map((v)=>(
               <div key={v._id}
               className='bg-[#1c1c1c] rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col'>
                 <img src={v.thumbnail} alt={v.title} className='w-full h-40 object-cover'/>
@@ -129,7 +129,7 @@ function Content() {
           </div>
 
           <div className='grid gap-4 md:hidden border'>
-            {channelData.shorts?.map((s)=>(
+            {channelData?.shorts?.map((s)=>(
               <div key={s._id}
               className='bg-[#1c1c1c] rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col'>
                 <video src={s?.shortUrl} className='w-full  aspect-9/16 object-covered' muted playsInline controls/>
@@ -179,7 +179,7 @@ function Content() {
           </div>
 
           <div className='grid gap-4 md:hidden border'>
-            {channelData.playlists?.map((v)=>(
+            {channelData?.playlists?.map((v)=>(
               <div key={v._id}
               className='bg-[#1c1c1c] rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col'>
                 <img src={v?.videos?.[0]?.thumbnail || ''} alt="" className='w-full h-32 object-cover'/>
@@ -229,7 +229,7 @@ function Content() {
           </div>
 
           <div className='grid gap-4 md:hidden'>
-            {channelData.communityPosts?.map((p)=>(
+            {channelData?.communityPosts?.map((p)=>(
               <div key={p._id}
               className='bg-[#1c1c1c] rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col'>
                 <img src={p.image} alt="" className='w-full h-40 object-cover'/>

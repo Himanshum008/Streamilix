@@ -12,6 +12,20 @@ import Description from '../../components/Description.jsx'
 import { serverUrl } from '../../App.jsx'
 import { ClipLoader } from 'react-spinners'
 import { setAllVideosData } from '../../redux/contentSlice.js'
+import { timeAgo } from '../../../../backend/src/utils/timeAgo.js'
+
+const getVideoDuration = (url, callback) => {
+    const video = document.createElement("video")
+    video.preload = "metadata"
+    video.src = url
+    video.onloadedmetadata = () => {
+        const totalSeconds = Math.floor(video.duration)
+        const minutes = Math.floor(totalSeconds / 60)
+        const seconds = totalSeconds % 60
+        callback(`${minutes}:${seconds.toString().padStart(2, "0")}`)
+    }
+    video.onerror = () => callback("0:00")
+}
 
 const IconButton = ({icon:Icon, active, label, count, onClick})=>(
     <button className='flex flex-col items-center' onClick={onClick}>
@@ -23,6 +37,52 @@ const IconButton = ({icon:Icon, active, label, count, onClick})=>(
         <span className='text-xs mt-1 flex gap-1'>{count !== undefined && `${count}`} <span>{label}</span></span>
     </button>
 )
+
+const ExpandableText = ({text, className = ""}) => {
+    const textRef = useRef(null)
+    const [expanded, setExpanded] = useState(false)
+    const [hasOverflow, setHasOverflow] = useState(false)
+
+    useEffect(() => {
+        const element = textRef.current
+        if (!element) return
+
+        setHasOverflow(element.scrollHeight > element.clientHeight)
+    }, [text])
+
+    return (
+        <div className={className}>
+            <p
+                ref={textRef}
+                className={`whitespace-pre-line ${expanded ? "" : "line-clamp-1"}`}
+                style={{overflowWrap: "anywhere"}}
+            >
+                {text}
+            </p>
+            {hasOverflow && (
+                <button
+                    className='text-xs text-blue-400 hover:underline'
+                    onClick={() => setExpanded((previous) => !previous)}
+                >
+                    {expanded ? "show less" : "show more"}
+                </button>
+            )}
+        </div>
+    )
+}
+
+const sortCommentsWithReplies = (comments = []) => [...comments]
+    .map((comment) => ({
+        ...comment,
+        replies: [...(comment?.replies || [])].sort(
+            (firstReply, secondReply) =>
+                new Date(secondReply?.createdAt || 0) - new Date(firstReply?.createdAt || 0)
+        )
+    }))
+    .sort(
+        (firstComment, secondComment) =>
+            new Date(secondComment?.createdAt || 0) - new Date(firstComment?.createdAt || 0)
+    )
 
 function PlayVideo() {
     const videoRef = useRef(null)
@@ -45,40 +105,101 @@ function PlayVideo() {
     const [comment, setComment] = useState([])
     const [newComment, setNewComment] = useState([])
     const dispatch = useDispatch()
-    const [isSubscribed, setIsSubscribed] = useState(channel?.subscribers?.some((sub)=>sub?._id?.toString() 
-        === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
+    const [isSubscribed, setIsSubscribed] = useState(false)
+    const [suggestedDurations, setSuggestedDurations] = useState({})
 
     const {allVideosData, allShortsData} = useSelector(state=>state.content)
 
     const suggestedVideos = allVideosData?.filter((v)=>v._id !== videoId).slice(0,10) || []
     const suggestedShorts = allShortsData?.slice(0,10) || []
 
-    useEffect(()=>{
-        if (!allVideosData) {
-            return
-        }
-        const currentVideo = allVideosData.find((v)=>v._id === videoId)
-        console.log(currentVideo);
-        if (currentVideo) {
-            setVideo(currentVideo)
-            setChannel(currentVideo.channel)
-            setComment(currentVideo?.comments)
-        }
+    useEffect(() => {
+        suggestedVideos.forEach((suggestedVideo) => {
+            if (!suggestedVideo?.videoUrl || suggestedDurations[suggestedVideo._id]) return
 
-        const addViews = async () => {
-            try {
-                const result = await axios.put(`${serverUrl}/api/content/video/${videoId}/add-view` , {} , {withCredentials:true}) 
-                setVideo((prev)=> prev ? {...prev , views: result.data.views} : prev)
+            getVideoDuration(suggestedVideo.videoUrl, (formattedDuration) => {
+                setSuggestedDurations((previous) => ({
+                    ...previous,
+                    [suggestedVideo._id]: formattedDuration
+                }))
+            })
+        })
+    }, [allVideosData, videoId])
 
-                const UpdatedVideo = allVideosData.map((v)=>v._id === videoId ? {...v , views:result.data.views} : v)
-                dispatch(setAllVideosData(UpdatedVideo))
-            } catch (error) {
-                console.log(error);
-                
-            }
+    useEffect(() => {
+    if (!channel?.subscribers || !userData?._id) {
+        setIsSubscribed(false);
+        return;
+    }
+
+    const subscribed = channel.subscribers.some((sub) => {
+    const subscriberId =
+        sub?.user?._id?.toString() ||
+        sub?.user?.toString()
+    return subscriberId === userData._id.toString()
+})
+
+    setIsSubscribed(subscribed);
+}, [channel, userData?._id]);
+
+    useEffect(() => {
+    if (!allVideosData) {
+        return;
+    }
+
+    const currentVideo = allVideosData.find((v) => v._id === videoId);
+
+    console.log(currentVideo);
+
+    if (currentVideo) {
+        setVideo(currentVideo);
+        setChannel(currentVideo.channel);
+
+        // Latest comments first
+        const comments = currentVideo.comments || [];
+
+        const sortedComments = sortCommentsWithReplies(comments);
+
+        setComment(sortedComments);
+    }
+
+}, [allVideosData, videoId]);
+
+useEffect(() => {
+    if (!videoId || !allVideosData) {
+        return;
+    }
+
+    const addViews = async () => {
+        try {
+            const result = await axios.put(
+                `${serverUrl}/api/content/video/${videoId}/add-view`,
+                {},
+                { withCredentials: true }
+            );
+
+            setVideo((prev) =>
+                prev
+                    ? { ...prev, views: result.data.views }
+                    : prev
+            );
+
+            const updatedVideos = allVideosData.map((v) =>
+                v._id === videoId
+                    ? { ...v, views: result.data.views }
+                    : v
+            );
+
+            dispatch(setAllVideosData(updatedVideos));
+
+        } catch (error) {
+            console.log(error);
         }
-        addViews()
-    },[videoId])
+    };
+
+    addViews();
+
+}, [videoId]);
 
     const handleUpdateTime = ()=> {
         if(!videoRef.current) return;
@@ -148,24 +269,31 @@ function PlayVideo() {
     }
 
     const handleSubscribe = async () => {
-        if (!channel._id) {
-            return;
-        }
-        setLoading(true)
-        try {
-            const result = await axios.post(serverUrl + "/api/user/togglesubscribe" , 
-                {channelId:channel._id} , {withCredentials:true})
-                setChannel((prev)=>({
-                    ...prev , subscribers:result.data.subscribers || prev.subscribers
-                }))
-                setLoading(false)
-                console.log(result.data);
-                
-        } catch (error) {
-            console.log(error);
-            setLoading(false)
-        }
+    if (!channel?._id || loading) return
+
+    setLoading(true)
+
+    try {
+        const result = await axios.post(
+            serverUrl + "/api/user/togglesubscribe",
+            {
+                channelId: channel._id
+            },
+            {
+                withCredentials: true
+            }
+        )
+
+        const updatedChannel = result.data
+
+        setChannel(updatedChannel)
+
+    } catch (error) {
+        console.error("Subscribe error:", error.response?.data?.message || error)
+    } finally {
+        setLoading(false)
     }
+}
     
 
     const toggleLike = async () => {
@@ -205,37 +333,60 @@ function PlayVideo() {
     }
 
     const handleAddComment = async () => {
-        if(!newComment)return;
-        setLoading1(true)
-        try {
-            const result = await axios.post(`${serverUrl}/api/content/video/${videoId}/add-comment` , 
-                {message:newComment} , {withCredentials:true})
-                setComment(prev=>[result.data?.comments.slice(-1)[0] , ...prev])
-                setComment(result.data?.comments)
-                console.log(result.data?.comments);
-                setLoading1(false)
-                setNewComment("")
-        } catch (error) {
-            console.log(error);
-            setLoading1(false)
-        }
-    }
+    if (!newComment.trim()) return;
 
-    const handleReply = async ({commentId , replyText}) => {
-        if(!replyText)return;
-        setLoading2(true)
+    setLoading1(true);
 
-        try {
-            const result = await axios.post(`${serverUrl}/api/content/video/${videoId}/${commentId}/add-reply` , 
-                {message:replyText} , {withCredentials:true})
-                setComment(result.data?.comments)
-                console.log(result.data?.comments);
-                setLoading2(false)
-        } catch (error) {
-            console.log(error);
-            setLoading2(false)
-        }
+    try {
+        const result = await axios.post(
+            `${serverUrl}/api/content/video/${videoId}/add-comment`,
+            { message: newComment },
+            { withCredentials: true }
+        );
+
+        const comments = result.data?.comments || [];
+
+        // Latest comments first
+        const sortedComments = sortCommentsWithReplies(comments);
+
+        setComment(sortedComments);
+
+        console.log(sortedComments);
+
+        setNewComment("");
+    } catch (error) {
+        console.log(error);
+    } finally {
+        setLoading1(false);
     }
+};
+
+    const handleReply = async ({ commentId, replyText }) => {
+    if (!replyText.trim()) return;
+
+    setLoading2(true);
+
+    try {
+        const result = await axios.post(
+            `${serverUrl}/api/content/video/${videoId}/${commentId}/add-reply`,
+            { message: replyText },
+            { withCredentials: true }
+        );
+
+        const comments = result.data?.comments || [];
+
+        // Latest comments first
+        const sortedComments = sortCommentsWithReplies(comments);
+
+        setComment(sortedComments);
+
+        console.log(sortedComments);
+    } catch (error) {
+        console.log(error);
+    } finally {
+        setLoading2(false);
+    }
+};
 
     useEffect(()=>{
         const addHistory = async () => {
@@ -253,10 +404,6 @@ function PlayVideo() {
         if (videoId) addHistory();
     },[videoId])
     
-    useEffect(()=>{setIsSubscribed(channel?.subscribers?.some((sub)=>sub._id?.toString() 
-        === userData?._id?.toString() || sub?.toString() === userData?._id?.toString()))
-    }),[channel?.subscribers , userData?._id]
-
   return (
     <div className='flex bg-[#0f0f0f] text-white flex-col lg:flex-row gap-6 p-4 lg:p-6'>
         <div className='flex-1'>
@@ -313,23 +460,23 @@ function PlayVideo() {
                     </div>
                 </div>
             </div>
-            <h1 className='mt-4 text-lg sm:text-xl font-bold text-white flex'>
-                {video?.title}
+            <h1 className='mt-4 text-lg sm:text-xl font-bold text-white'>
+                <ExpandableText text={video?.title}/>
             </h1>
-            <p className='text-sm text-gray-400'>{video?.views} views</p>
-            <div className=' mt-2 flex flex-wrap items-center justify-between'>
-                <div className='flex items-center justify-start gap-4'>
+            <p className='text-sm text-gray-400'>{video?.views} views . {timeAgo(video?.createdAt)}</p>
+            <div className='mt-2 flex flex-wrap items-center justify-between gap-3'>
+                <div className='flex min-w-0 flex-1 items-center justify-start gap-2 sm:gap-4'>
                     <img src={channel?.avatar} alt="" className='w-12 h-12 rounded-full border-2 border-gray-600'
                     onClick={()=>navigate(`/channelpage/${channel?._id}`)}/>
-                    <div>
-                        <h1 className='text-md font-bold' onClick={()=>navigate(`/channelpage/${channel?._id}`)}>{channel?.name}</h1>
+                    <div className='min-w-0'>
+                        <h1 className='text-md truncate font-bold' onClick={()=>navigate(`/channelpage/${channel?._id}`)}>{channel?.name}</h1>
                         <h3 className='text-[13px]'>{channel?.subscribers?.length}</h3>
                     </div>
-                    <button className={`px-5 py-2 rounded-4xl border border-gray-600 ml-5 text-md 
+                </div>
+                    <button className={`shrink-0 rounded-4xl border border-gray-600 px-3 py-2 text-sm sm:ml-5 sm:px-5 sm:text-md 
                     ${isSubscribed ? "bg-black text-white hover:bg-orange-600 hover:text-black ": 
                     "bg-white text-black hover:bg-orange-600 hover:text-black"} `} onClick={handleSubscribe}>
                         {loading?<ClipLoader size={20} color='orange4'/>: isSubscribed ? "Subscribed" : "Subscribe"}</button>
-                </div>
                 <div className='flex items-center gap-6 mt-3'>
                     <IconButton icon={FaThumbsUp} label={"Likes"}
                     active={video?.likes?.includes(userData._id)} count={video?.likes?.length} onClick={toggleLike}/>
@@ -349,11 +496,11 @@ function PlayVideo() {
 
             <div className='mt-6'>
                 <h2 className='text-lg font-semibold mb-3'>Comments</h2>
-                <div className='flex gap-2 mb-4'>
+                <div className='flex w-full max-w-2xl gap-2 mb-4'>
                     <input type="text" placeholder='Add a comment....' className='flex-1 border border-gray-700 bg-[#1a1a1a] 
-                    text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-orange-600'
+                    min-w-0 h-10 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-orange-600'
                     onChange={(e)=>setNewComment(e.target.value)} value={newComment}/>
-                    <button className='bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg' disabled={loading1}
+                    <button className='shrink-0 h-10 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg' disabled={loading1}
                     onClick={handleAddComment}>{loading1 ? <ClipLoader size={20} color='black'/>:"Post"}</button>
                 </div>
                 <div className='space-y-3 max-h-75 overflow-y-auto pr-2'>
@@ -362,24 +509,13 @@ function PlayVideo() {
                             <div className='flex items-center justify-start gap-1'>
                                 <img src={comment?.author?.photoUrl} alt="" className='w-8 h-8 rounded-full object-cover'/>
                                 <h2 className='text-[13px]'>@{comment?.author?.username.toLowerCase()}</h2>
+                                <span className='text-[11px] text-gray-500'>
+                                                    {timeAgo(comment?.createdAt)}
+                                                </span>
                             </div>
-                            <p className='font-medium px-5 py-5'>{comment?.message}</p>
+                            <ExpandableText text={comment?.message} className='px-5 py-5 font-medium'/>
 
-                            <div className='ml-4 mt-2 space-y-2'>
-                                {
-                                    comment?.replies.map((reply)=>(
-                                        <div key={reply._id} className='p-2 bg-[#2a2a2a] rounded'>
-                                            <div className='flex items-center justify-start gap-1'>
-                                                <img src={reply?.author?.photoUrl} alt="" className='w-6 h-6 rounded-full object-cover'/>
-                                                <h2 className='text-[13px]'>@{reply?.author?.username.toLowerCase()}</h2>
-                                                <p className='px-5 py-5'>{reply.message}</p>
-                                            </div>
-                                        </div>
-                                    ))
-                                }
-                            </div>
-
-                            <ReplySection comment={comment} handleReply={handleReply} loading2={loading2}/>
+                            <ReplySection comment={comment} replies={comment?.replies} handleReply={handleReply} loading2={loading2}/>
 
                         </div>
                     ))}
@@ -400,6 +536,7 @@ function PlayVideo() {
                             avatar={short?.channel?.avatar}
                             id={short?._id}
                             views={short?.views}
+                            createdAt={short?.createdAt}
                             />
                         </div>
                     ))}
@@ -409,11 +546,16 @@ function PlayVideo() {
                         {suggestedVideos?.map((v)=>(
                             <div key={v._id} className='flex gap-2 sm:gap-3 cursor-pointer hover:bg-[#1a1a1a] p-2 rounded-lg transition'
                             onClick={()=>navigate(`/playvideo/${v._id}`)}>
-                                <img src={v?.thumbnail} alt="" className='w-32 sm:w-40 h-20 sm:h-24 rounded-lg object-cover'/>
+                                <div className='relative shrink-0'>
+                                    <img src={v?.thumbnail} alt="" className='w-32 sm:w-40 h-20 sm:h-24 rounded-lg object-cover'/>
+                                    <span className='absolute bottom-1 right-1 rounded bg-black/85 px-1 text-[11px] text-white'>
+                                        {suggestedDurations[v?._id] || "0:00"}
+                                    </span>
+                                </div>
                                 <div>
                                     <p className='font-semibold line-clamp-2 text-sm sm:text-base text-white'>{v?.title}</p>
                                     <p className='text-xs sm:text-sm text-gray-400'>{v?.channel?.name}</p>
-                                    <p className='text-xs sm:text-sm text-gray-400'>{v?.views} views</p>
+                                    <p className='text-xs sm:text-sm text-gray-400'>{v?.views} views . {timeAgo(video?.createdAt)}</p>
 
                                 </div>
                             </div>
@@ -424,26 +566,39 @@ function PlayVideo() {
   )
 }
 
-const ReplySection = ({comment, handleReply, loading2})=>{
+const ReplySection = ({comment, replies = [], handleReply, loading2})=>{
     const [replyText, setReplyText] = useState("")
     const [showReplyInput, setShowReplyInput] = useState(false)
 
     return(
         <div className='mt-3'>
             {showReplyInput && 
-            <div className='flex gap-2 mt-1 ml-4'>
+            <div className='flex w-full max-w-xl gap-2 mt-1 ml-0 sm:ml-4'>
                 <input type="text" 
                 placeholder='Add a reply...!' 
                 className='flex-1 border border-gray-700 bg-[#1a1a1a] text-white rounded-lg px-2 py-2 focus:ring-1 
-                focus:ring-orange-600 text-sm' 
+                min-w-0 h-9 focus:ring-orange-600 text-sm' 
                 onChange={(e)=>setReplyText(e.target.value)} value={replyText}/>
                 <button onClick={()=>{handleReply({commentId:comment._id , replyText:replyText}); 
                 setShowReplyInput(false); setReplyText("")}} disabled={loading2}
-                    className='bg-orange-600 hover:bg-orange-700 text-white px-3 rounded-lg text-sm'>
+                    className='shrink-0 h-9 bg-orange-600 hover:bg-orange-700 text-white px-3 rounded-lg text-sm'>
                         {loading2 ? <ClipLoader color='black'/> : "Reply"}</button>
             </div>}
 
             <button onClick={()=>setShowReplyInput(!showReplyInput)} className='ml-4 text-xs text-gray-400 mt-1'>reply</button>
+
+            {showReplyInput && <div className='ml-4 mt-2 space-y-2'>
+                {replies.map((reply)=>(
+                    <div key={reply?._id} className='p-2 bg-[#2a2a2a] rounded'>
+                        <div className='flex items-center justify-start gap-1'>
+                            <img src={reply?.author?.photoUrl} alt='' className='w-6 h-6 rounded-full object-cover'/>
+                            <h2 className='text-[13px]'>@{reply?.author?.username?.toLowerCase()}</h2>
+                            <span className='text-[11px] text-gray-500'>{timeAgo(reply?.createdAt)}</span>
+                            <ExpandableText text={reply?.message} className='px-5 py-5'/>
+                        </div>
+                    </div>
+                ))}
+            </div>}
 
         </div>
     )

@@ -27,10 +27,19 @@ const channelSchema = new mongoose.Schema({
         type:String,
         default:""
     },
-    subscribers:[{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:"User"
-    }],
+    subscribers: [
+    {
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true
+        },
+        subscribedAt: {
+            type: Date,
+            default: Date.now
+        }
+    }
+],
     videos:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Video"

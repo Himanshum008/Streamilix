@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import ChannelCard from './ChannelCard';
 import VideoCard from './VideoCard';
 import ShortCard from './ShortCard';
-import PlaylistCard from './PlaylistCard';
 
 const getVideoDuration = (url, callback) => {
     const video = document.createElement("video");
@@ -64,6 +62,7 @@ function FilterResults({filterResults}) {
                             channelName={video?.channel?.name}
                             id={video?._id}
                             views={video?.views}
+                            createdAt={video?.createdAt}
                             />
                         ))}
                     </div>
@@ -85,6 +84,7 @@ function FilterResults({filterResults}) {
                             views={short?.views}
                             id={short?._id}
                             avatar={short?.channel?.avatar}
+                            createdAt={short?.createdAt}
                             />
                             </div>
                         ))}

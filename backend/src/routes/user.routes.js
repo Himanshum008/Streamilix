@@ -5,6 +5,7 @@ import {
     createChannel,
     getAllChannelData,
     getChannelData,
+    getChannelSubscribers,
     getCurrentUser,
     getHistory,
     getRecommendedContent,
@@ -33,6 +34,8 @@ userRouter.get("/getchannel", isAuth, getChannelData)
 userRouter.get("/allchanneldata" , isAuth , getAllChannelData)
 
 userRouter.post("/togglesubscribe" , isAuth , toggleSubscribe)
+
+userRouter.get("/getsubscribers" , isAuth , getChannelSubscribers)
 
 userRouter.get("/subscribed-content" , isAuth , getSubscribedData)
 

@@ -86,6 +86,7 @@ function LikedContent() {
                         views={short?.views}
                         id={short?._id}
                         avatar={short?.channel?.avatar}
+                        createdAt={short?.createdAt}
                         />
                     </div>
                 ))}
@@ -110,6 +111,7 @@ function LikedContent() {
                         channelName={video?.channel?.name}
                         id={video?._id}
                         views={video?.views}
+                        createdAt={video?.createdAt}
                         />
                     </div>
                 ))}

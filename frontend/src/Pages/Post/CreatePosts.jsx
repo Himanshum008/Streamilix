@@ -21,6 +21,10 @@ function CreatePosts() {
         showCustomAlert("Post content is required!")
         return
       }
+      if (!channelData?._id) {
+        showCustomAlert("Channel data is not available")
+        return
+      }
       const formData = new FormData()
       formData.append("channelId", channelData._id)
       formData.append("content", content)
@@ -29,7 +33,7 @@ function CreatePosts() {
     try {
       const result = await axios.post(serverUrl + "/api/content/create-post" , formData , {withCredentials:true})
       const updatechannel = {
-        ...channelData , posts : [{...(channelData.posts || [])},result.data]
+        ...channelData , communityPosts : [...(channelData.communityPosts || []), result.data]
           }
           dispatch(setChannelData(updatechannel))
           console.log(result.data);
@@ -38,7 +42,7 @@ function CreatePosts() {
           setLoading(false)
     } catch (error) {
       console.log(error);
-      setLoading(error)
+      setLoading(false)
       showCustomAlert(`Failed to create post`)
     }
   }
@@ -59,7 +63,7 @@ function CreatePosts() {
         {image && <div className='mt-3 '>
           <img src={URL.createObjectURL(image)} alt="" className='rounded-lg max-h-64 object-cover'/>
           </div>}
-          <button disabled={!content || loading} className='w-full bg-orange-600 hover:bg-orange-700 py-3 rounded-lg font-medium
+          <button disabled={!content || !channelData?._id || loading} className='w-full bg-orange-600 hover:bg-orange-700 py-3 rounded-lg font-medium
           disabled:bg-gray-600 flex items-center justify-center' onClick={handleCreatePost}>
             {loading ? <ClipLoader color='black' size={20}/> : "Create Post"}</button>
       </div>

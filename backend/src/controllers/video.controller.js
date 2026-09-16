@@ -1,5 +1,6 @@
 import uploadOnCloudinary from "../config/cloudinary.js"
 import Channel from "../models/channel.model.js"
+import User from "../models/user.model.js"
 import Video from "../models/video.model.js"
 
 
@@ -311,6 +312,16 @@ export const deleteVideo = async (req,res) => {
         await Channel.findByIdAndUpdate(video.channel, {
             $pull: {videos: video._id},
         })
+
+        await User.updateMany(
+            {"history": {$elemMatch: {contentId: video._id, contentType: "Video"}}},
+            {$pull: {history: {contentId: video._id, contentType: "Video"}}}
+        );
+
+        // Remove video from all users' liked and saved lists
+        await User.updateMany(
+            {},
+            {$pull: {likedVideos: video._id, savedVideos: video._id}});
 
         await Video.findByIdAndDelete(videoId);
         return res.status(200).json({message: "Video deleted successfully"})

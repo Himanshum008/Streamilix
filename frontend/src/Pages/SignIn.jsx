@@ -50,7 +50,13 @@ function SignIn() {
       } catch (error) {
                 console.log(error)
                 setLoading(false)
-                showCustomAlert(error.response.data.message)
+                const status = error.response?.status
+                const message = status === 406
+                  ? "Invalid Gmail"
+                  : status === 407
+                    ? "Invalid Password"
+                    : error.response?.data?.message || "Invalid password"
+                showCustomAlert(message)
       }
     }
 

@@ -1,7 +1,8 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { timeAgo } from '../../../backend/src/utils/timeAgo'
 
-function ShortCard({shortUrl, title, channelName, avatar, views, id}) {
+function ShortCard({shortUrl, title, channelName, avatar, views, id, createdAt}) {
     const navigate = useNavigate()
   return (
     <div className='w-45 sm:w-48 cursor-pointer relative' onClick={()=>navigate(`/playshort/${id}`)}>
@@ -23,7 +24,7 @@ function ShortCard({shortUrl, title, channelName, avatar, views, id}) {
                     : Number(views) >= 1_000
                     ? Math.floor(Number(views) / 1_000) + "K"
                     : Number(views) || 0
-                } views</p>
+                } views . {timeAgo(createdAt)}</p>
         </div>
 
     </div>

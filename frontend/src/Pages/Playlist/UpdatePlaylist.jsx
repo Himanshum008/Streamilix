@@ -68,6 +68,7 @@ function UpdatePlaylist() {
         dispatch(setChannelData({...channelData, playlists: updatedPlaylists}))
 
         showCustomAlert("Playlist updated successfully")
+        navigate("/streamilixstudio/content");
         
     } catch (error) {
         console.error(error)

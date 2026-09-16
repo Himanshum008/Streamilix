@@ -1,7 +1,8 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
+import { timeAgo } from '../../../backend/src/utils/timeAgo.js'
 
-function VideoCard({thumbnail, duration, channelLogo, title, channelName, views, id}) {
+function VideoCard({thumbnail, duration, channelLogo, title, channelName, views, id, createdAt}) {
     const navigate = useNavigate()
   return (
     <div className='w-90 cursor-pointer' onClick={()=>navigate(`/playvideo/${id}`)}>
@@ -22,7 +23,7 @@ function VideoCard({thumbnail, duration, channelLogo, title, channelName, views,
                     : Number(views) >= 1_000
                     ? Math.floor(Number(views) / 1_000) + "K"
                     : Number(views) || 0
-            } views</p>
+            } views . {timeAgo(createdAt)}</p>
             </div>
         </div>
     </div>

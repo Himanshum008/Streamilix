@@ -81,6 +81,7 @@ function SearchResults({searchResults}) {
                             channelName={video?.channel?.name}
                             id={video?._id}
                             views={video?.views}
+                            createdAt={video?.createdAt}
                             />
                         ))}
                     </div>
@@ -102,6 +103,7 @@ function SearchResults({searchResults}) {
                             views={short?.views}
                             id={short?._id}
                             avatar={short?.channel?.avatar}
+                            createdAt={short?.createdAt}
                             />
                             </div>
                         ))}

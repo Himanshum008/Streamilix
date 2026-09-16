@@ -5,8 +5,9 @@ import VideoCard from './VideoCard.jsx'
 import { useSelector } from 'react-redux'
 import axios from 'axios'
 import { serverUrl } from '../App.jsx'
+import { timeAgo } from '../../../backend/src/utils/timeAgo.js'
 
-function PlaylistCard({id, title, videos, savedBy, channelAvatar, channelName}) {
+function PlaylistCard({id, title, videos, savedBy, channelAvatar, channelName, createdAt}) {
     const thumbnail = videos?.[0]?.thumbnail 
     const [showVideos, setShowVideos] = useState(false)
     const {userData} = useSelector(state=>state.user)
@@ -65,6 +66,7 @@ function PlaylistCard({id, title, videos, savedBy, channelAvatar, channelName}) 
               title={v.title}
               channelName={v.channel?.name || channelName}
               views={v.views}
+              createdAt={v?.createdAt}
               />
             ))}
           </div>
